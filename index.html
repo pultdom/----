@@ -1,0 +1,1969 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0e1a">
+<title>SmartHome ULTIMATE</title>
+<link rel="manifest" href='data:application/manifest+json,{"name":"SmartHome ULTIMATE","short_name":"SmartHome","start_url":".","display":"standalone","background_color":"#0a0e1a","theme_color":"#4facfe","icons":[{"src":"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏠</text></svg>","sizes":"192x192","type":"image/svg+xml"}]}'>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+  :root {
+    --bg: #0a0e1a; --bg2: #131829; --bg3: #1a2036;
+    --card: rgba(255,255,255,0.04); --card-hover: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.08);
+    --accent: #4facfe; --accent2: #00f2fe; --accent3: #a855f7; --accent4: #ec4899;
+    --text: #fff; --muted: #8b95b0;
+    --danger: #ff6b6b; --success: #4ade80; --warning: #fbbf24;
+    --glow: 0 0 40px rgba(79,172,254,0.3);
+  }
+  body.light {
+    --bg: #f5f7fb; --bg2: #ffffff; --bg3: #f0f3f8;
+    --card: rgba(0,0,0,0.03); --card-hover: rgba(0,0,0,0.06);
+    --border: rgba(0,0,0,0.08); --text: #1a2332; --muted: #5a6b80;
+  }
+  body { min-height: 100vh; background: var(--bg); color: var(--text); overflow-x: hidden; transition: 0.4s; padding-bottom: 90px; }
+
+  /* ФОН */
+  #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .gradient-orb { position: fixed; border-radius: 50%; filter: blur(100px); opacity: 0.35; z-index: 0; pointer-events: none; animation: float 25s infinite ease-in-out; }
+  .orb1 { width: 500px; height: 500px; background: var(--accent); top: -150px; left: -150px; }
+  .orb2 { width: 600px; height: 600px; background: var(--accent3); bottom: -200px; right: -200px; animation-delay: -12s; }
+  .orb3 { width: 400px; height: 400px; background: var(--accent4); top: 40%; left: 40%; animation-delay: -6s; }
+  @keyframes float { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(100px,-50px) scale(1.1); } 66% { transform: translate(-50px,100px) scale(0.9); } }
+
+  /* SPLASH */
+  .splash { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.6s; }
+  .splash.hide { opacity: 0; visibility: hidden; }
+  .splash-logo { font-size: 90px; animation: splashPulse 1.5s infinite; margin-bottom: 20px; }
+  @keyframes splashPulse { 0%,100% { transform: scale(1) rotate(0); filter: drop-shadow(0 0 20px var(--accent)); } 50% { transform: scale(1.15) rotate(5deg); filter: drop-shadow(0 0 40px var(--accent2)); } }
+  .splash-text { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3), var(--accent4)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 300% 300%; animation: gradient 3s infinite; margin-bottom: 30px; letter-spacing: 2px; }
+  @keyframes gradient { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+  .splash-bar { width: 240px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .splash-bar::after { content: ''; display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent4)); animation: loading 1.5s infinite; }
+  @keyframes loading { 0% { width: 0; margin-left: 0; } 50% { width: 70%; margin-left: 15%; } 100% { width: 0; margin-left: 100%; } }
+
+  /* АВТОРИЗАЦИЯ */
+  .auth-screen { display: none; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; position: relative; z-index: 1; }
+  .auth-screen.active { display: flex; }
+  .auth-box { background: var(--card); backdrop-filter: blur(20px); padding: 40px; border-radius: 24px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); border: 1px solid var(--border); animation: fadeIn 0.6s ease; }
+  .auth-box h1 { text-align: center; margin-bottom: 8px; font-size: 28px; }
+  .auth-box .subtitle { text-align: center; color: var(--muted); margin-bottom: 25px; font-size: 14px; }
+  .auth-tabs { display: flex; gap: 8px; margin-bottom: 25px; background: var(--card); border-radius: 12px; padding: 4px; }
+  .auth-tab { flex: 1; padding: 10px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.3s; color: var(--muted); font-size: 14px; }
+  .auth-tab.active { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
+  .auth-form { display: none; }
+  .auth-form.active { display: block; animation: fadeIn 0.4s; }
+  .auth-box input, .auth-box select { width: 100%; padding: 13px 16px; margin-bottom: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 15px; outline: none; transition: 0.3s; }
+  .auth-box input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,172,254,0.2); }
+  .auth-box input::placeholder { color: var(--muted); }
+  .auth-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; border-radius: 12px; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 10px; position: relative; overflow: hidden; }
+  .auth-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--accent4), var(--accent3)); opacity: 0; transition: 0.3s; }
+  .auth-btn:hover::before { opacity: 1; }
+  .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(79,172,254,0.4); }
+  .auth-btn span { position: relative; z-index: 1; }
+  .error-msg { color: var(--danger); text-align: center; margin-top: 12px; font-size: 14px; min-height: 20px; }
+  .hint { text-align: center; margin-top: 20px; font-size: 12px; color: var(--muted); }
+  .role-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+  .role-option { padding: 12px 8px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; text-align: center; transition: 0.3s; font-size: 12px; }
+  .role-option:hover { border-color: var(--accent); }
+  .role-option.selected { background: linear-gradient(135deg, rgba(79,172,254,0.2), rgba(0,242,254,0.1)); border-color: var(--accent); }
+  .role-option .icon { font-size: 24px; display: block; margin-bottom: 4px; }
+
+  /* ПРИЛОЖЕНИЕ */
+  .app { display: none; min-height: 100vh; position: relative; z-index: 1; }
+  .app.active { display: grid; grid-template-columns: 260px 1fr; animation: fadeIn 0.5s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* SIDEBAR */
+  .sidebar { background: var(--card); backdrop-filter: blur(20px); border-right: 1px solid var(--border); padding: 20px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .logo { padding: 0 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg, var(--accent), var(--accent4)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: var(--glow); }
+  .logo span { background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent4)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .nav-section { padding: 12px 20px 6px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 20px; color: var(--muted); cursor: pointer; transition: 0.3s; border-left: 3px solid transparent; font-size: 14px; }
+  .nav-item:hover { background: var(--card-hover); color: var(--text); }
+  .nav-item.active { background: linear-gradient(90deg, rgba(79,172,254,0.15), transparent); color: var(--accent); border-left-color: var(--accent); }
+  .nav-item .icon { font-size: 18px; width: 24px; text-align: center; }
+  .nav-badge { margin-left: auto; background: var(--accent); color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 8px; font-weight: 600; }
+  .nav-badge.danger { background: var(--danger); }
+
+  /* MAIN */
+  .main { padding: 25px 30px; overflow-y: auto; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+  .topbar h1 { font-size: 24px; font-weight: 700; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .search-box { display: flex; align-items: center; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 8px 14px; gap: 8px; cursor: pointer; transition: 0.3s; }
+  .search-box:hover { border-color: var(--accent); }
+  .search-box input { background: transparent; border: none; outline: none; color: var(--text); width: 150px; font-size: 13px; }
+  .kbd { font-size: 10px; background: var(--border); padding: 2px 6px; border-radius: 4px; color: var(--muted); font-family: monospace; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 1px solid var(--border); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: 0.3s; position: relative; }
+  .icon-btn:hover { background: var(--accent); color: #fff; transform: translateY(-2px); box-shadow: var(--glow); }
+  .icon-btn.voice.listening { background: var(--danger); color: #fff; animation: voicePulse 1s infinite; }
+  @keyframes voicePulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,107,107,0.7); } 50% { box-shadow: 0 0 0 10px rgba(255,107,107,0); } }
+  .badge { position: absolute; top: -4px; right: -4px; background: var(--danger); color: #fff; font-size: 10px; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; font-weight: 600; }
+  .user-chip { display: flex; align-items: center; gap: 10px; padding: 5px 12px 5px 5px; background: var(--card); border: 1px solid var(--border); border-radius: 30px; cursor: pointer; transition: 0.3s; }
+  .user-chip:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff; font-size: 13px; }
+  .lang-btn { padding: 6px 10px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; color: var(--text); cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.3s; }
+  .lang-btn:hover { border-color: var(--accent); }
+
+  /* СТРАНИЦЫ */
+  .page { display: none; animation: pageIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+  .page.active { display: block; }
+  @keyframes pageIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* СКОР ДОМА */
+  .home-score { background: linear-gradient(135deg, rgba(79,172,254,0.2), rgba(236,72,153,0.15)); border: 1px solid var(--border); border-radius: 18px; padding: 22px; margin-bottom: 20px; display: grid; grid-template-columns: auto 1fr; gap: 25px; align-items: center; }
+  .score-circle { width: 120px; height: 120px; position: relative; }
+  .score-circle svg { transform: rotate(-90deg); }
+  .score-bg { fill: none; stroke: var(--border); stroke-width: 8; }
+  .score-fill { fill: none; stroke: url(#scoreGradient); stroke-width: 8; stroke-linecap: round; transition: 1s ease; }
+  .score-value { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .score-number { font-size: 32px; font-weight: 700; }
+  .score-label { font-size: 11px; color: var(--muted); }
+  .score-details { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .score-item { background: var(--card); padding: 12px; border-radius: 10px; }
+  .score-item .label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .score-item .value { font-size: 16px; font-weight: 600; }
+
+  /* STATS */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+  .stat-card { background: var(--card); backdrop-filter: blur(10px); padding: 20px; border-radius: 16px; border: 1px solid var(--border); transition: 0.3s; position: relative; overflow: hidden; }
+  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent4)); transform: scaleX(0); transform-origin: left; transition: 0.4s; }
+  .stat-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: var(--glow); }
+  .stat-card:hover::before { transform: scaleX(1); }
+  .stat-card .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .stat-card .value { font-size: 24px; font-weight: 700; }
+  .stat-card .trend { font-size: 11px; margin-top: 4px; }
+  .trend.up { color: var(--success); }
+  .trend.down { color: var(--danger); }
+  .stat-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 10px; }
+
+  /* ЧАСЫ + ПОГОДА */
+  .top-widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+  .clock-widget { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 20px; display: flex; align-items: center; gap: 20px; }
+  .analog-clock { width: 90px; height: 90px; border-radius: 50%; background: radial-gradient(circle, var(--bg2), var(--bg)); border: 3px solid var(--border); position: relative; flex-shrink: 0; }
+  .clock-hand { position: absolute; left: 50%; bottom: 50%; transform-origin: bottom center; background: var(--text); border-radius: 2px; }
+  .hour-hand { width: 4px; height: 24px; margin-left: -2px; }
+  .minute-hand { width: 3px; height: 34px; margin-left: -1.5px; background: var(--accent); }
+  .second-hand { width: 1px; height: 38px; margin-left: -0.5px; background: var(--accent4); }
+  .clock-center { position: absolute; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; }
+  .digital-time { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .digital-date { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .weather-widget { background: linear-gradient(135deg, rgba(79,172,254,0.2), rgba(236,72,153,0.15)); border: 1px solid var(--border); border-radius: 18px; padding: 20px; display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden; }
+  .weather-widget::before { content: ''; position: absolute; top: -50%; right: -20%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,255,255,0.1), transparent); border-radius: 50%; }
+  .weather-info { position: relative; z-index: 1; }
+  .weather-temp { font-size: 40px; font-weight: 700; }
+  .weather-desc { color: var(--muted); margin-top: 4px; font-size: 13px; }
+  .weather-icon { font-size: 70px; position: relative; z-index: 1; animation: weatherFloat 3s infinite ease-in-out; }
+  @keyframes weatherFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+  /* ГРАФИКИ */
+  .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 20px; margin-bottom: 20px; }
+  .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+  .chart-header h3 { font-size: 15px; }
+  .chart-tabs { display: flex; gap: 4px; background: var(--bg3); padding: 3px; border-radius: 8px; }
+  .chart-tab { padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; color: var(--muted); transition: 0.3s; }
+  .chart-tab.active { background: var(--accent); color: #fff; }
+  .chart-svg { width: 100%; height: 180px; }
+  .chart-line { fill: none; stroke: url(#chartGradient); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 8px rgba(79,172,254,0.5)); }
+  .chart-area { fill: url(#chartAreaGradient); opacity: 0.3; }
+  .chart-dot { fill: var(--accent); stroke: var(--bg2); stroke-width: 2; cursor: pointer; transition: 0.3s; }
+  .chart-dot:hover { r: 7; }
+  .chart-grid-line { stroke: var(--border); stroke-width: 1; stroke-dasharray: 2 4; }
+  .chart-label { fill: var(--muted); font-size: 10px; }
+
+  /* УСТРОЙСТВА */
+  .section-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; margin-top: 10px; flex-wrap: wrap; gap: 10px; }
+  .section-title h2 { font-size: 17px; }
+  .filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tab { padding: 6px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; cursor: pointer; font-size: 12px; color: var(--muted); transition: 0.3s; }
+  .tab:hover { color: var(--text); }
+  .tab.active { background: linear-gradient(135deg, var(--accent), var(--accent4)); color: #fff; border-color: transparent; }
+
+  .devices-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; }
+  .device-card { background: var(--card); backdrop-filter: blur(10px); padding: 20px; border-radius: 16px; border: 1px solid var(--border); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; cursor: pointer; }
+  .device-card::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(79,172,254,0.25), transparent 70%); opacity: 0; transition: 0.4s; }
+  .device-card:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 15px 30px rgba(0,0,0,0.3); border-color: var(--accent); }
+  .device-card.on { background: linear-gradient(135deg, rgba(79,172,254,0.18), rgba(236,72,153,0.1)); border-color: var(--accent); }
+  .device-card.on::before { opacity: 1; }
+  .device-card.on .device-icon { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); filter: drop-shadow(0 0 10px var(--accent)); } }
+
+  .device-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; position: relative; z-index: 1; }
+  .device-icon { font-size: 32px; transition: 0.3s; }
+  .device-name { font-size: 15px; font-weight: 600; margin-bottom: 3px; position: relative; z-index: 1; }
+  .device-status { font-size: 11px; color: var(--muted); margin-bottom: 12px; position: relative; z-index: 1; }
+
+  .switch { position: relative; width: 46px; height: 24px; z-index: 2; }
+  .switch input { display: none; }
+  .slider-sw { position: absolute; cursor: pointer; inset: 0; background: rgba(255,255,255,0.2); border-radius: 24px; transition: 0.3s; }
+  .slider-sw::before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.3s; }
+  .switch input:checked + .slider-sw { background: linear-gradient(135deg, var(--accent), var(--accent4)); box-shadow: 0 0 10px var(--accent); }
+  .switch input:checked + .slider-sw::before { transform: translateX(22px); }
+
+  .slider-range { width: 100%; margin-top: 10px; accent-color: var(--accent); position: relative; z-index: 1; }
+  .range-value { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 4px; position: relative; z-index: 1; }
+
+  .device-buttons { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; position: relative; z-index: 1; }
+  .mini-btn { flex: 1; min-width: 60px; padding: 7px; background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: var(--text); border-radius: 8px; cursor: pointer; font-size: 11px; transition: 0.3s; }
+  .mini-btn:hover { background: linear-gradient(135deg, var(--accent), var(--accent4)); border-color: transparent; color: #fff; transform: scale(1.05); }
+  .mini-btn:active { transform: scale(0.95); }
+  .mini-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent4)); border-color: transparent; color: #fff; }
+
+  .curtain-visual { height: 50px; background: linear-gradient(to bottom, #87ceeb 0%, #4a90e2 100%); border-radius: 6px; margin-top: 10px; position: relative; overflow: hidden; }
+  .curtain-l, .curtain-r { position: absolute; top: 0; width: 50%; height: 100%; background: linear-gradient(135deg, #8b4513, #a0522d); transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+  .curtain-l { left: 0; transform: translateX(0); }
+  .curtain-r { right: 0; transform: translateX(0); }
+  .device-card[data-curtain="open"] .curtain-l { transform: translateX(-100%); }
+  .device-card[data-curtain="open"] .curtain-r { transform: translateX(100%); }
+  .device-card[data-curtain="half"] .curtain-l { transform: translateX(-50%); }
+  .device-card[data-curtain="half"] .curtain-r { transform: translateX(50%); }
+
+  /* МУЗЫКАЛЬНЫЙ ПЛЕЕР В КАРТОЧКЕ */
+  .music-player { background: linear-gradient(135deg, rgba(236,72,153,0.15), rgba(168,85,247,0.1)); border-radius: 12px; padding: 12px; margin-top: 10px; position: relative; z-index: 1; }
+  .music-cover-wrap { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+  .music-cover { width: 60px; height: 60px; border-radius: 10px; background: linear-gradient(135deg, var(--accent4), var(--accent3)); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; box-shadow: 0 4px 15px rgba(236,72,153,0.4); position: relative; overflow: hidden; }
+  .music-cover.playing { animation: coverSpin 4s linear infinite; }
+  @keyframes coverSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+  .music-cover::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), transparent 60%); }
+  .music-info { flex: 1; min-width: 0; }
+  .music-title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .music-artist { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .music-equalizer { display: flex; gap: 2px; align-items: flex-end; height: 20px; margin-top: 6px; }
+  .eq-bar { width: 3px; background: linear-gradient(to top, var(--accent4), var(--accent)); border-radius: 2px; transition: 0.2s; }
+  .music-player.playing .eq-bar { animation: eq 0.8s infinite ease-in-out; }
+  .eq-bar:nth-child(1) { animation-delay: 0s; }
+  .eq-bar:nth-child(2) { animation-delay: 0.1s; }
+  .eq-bar:nth-child(3) { animation-delay: 0.2s; }
+  .eq-bar:nth-child(4) { animation-delay: 0.3s; }
+  .eq-bar:nth-child(5) { animation-delay: 0.15s; }
+  .eq-bar:nth-child(6) { animation-delay: 0.25s; }
+  @keyframes eq { 0%,100% { height: 4px; } 50% { height: 18px; } }
+  .music-progress { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; margin-bottom: 8px; cursor: pointer; }
+  .music-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent4), var(--accent)); width: 0%; transition: width 0.3s; }
+  .music-controls { display: flex; justify-content: center; align-items: center; gap: 8px; }
+  .music-btn { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.1); border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.3s; }
+  .music-btn:hover { background: var(--accent4); transform: scale(1.1); }
+  .music-btn.play { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent4), var(--accent3)); font-size: 16px; box-shadow: 0 4px 15px rgba(236,72,153,0.4); }
+  .music-btn.play:hover { transform: scale(1.15); }
+  .music-volume { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 11px; color: var(--muted); }
+  .music-volume input { flex: 1; accent-color: var(--accent4); }
+
+  /* ГЛОБАЛЬНЫЙ МИНИ-ПЛЕЕР */
+  .global-player { position: fixed; bottom: 0; left: 0; right: 0; height: 80px; background: var(--bg2); border-top: 1px solid var(--border); backdrop-filter: blur(20px); display: none; align-items: center; padding: 0 20px; gap: 15px; z-index: 80; box-shadow: 0 -10px 30px rgba(0,0,0,0.3); }
+  .global-player.active { display: flex; animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .gp-cover { width: 50px; height: 50px; border-radius: 8px; background: linear-gradient(135deg, var(--accent4), var(--accent3)); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+  .gp-cover.playing { animation: coverSpin 4s linear infinite; }
+  .gp-info { flex: 1; min-width: 0; }
+  .gp-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gp-artist { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .gp-controls { display: flex; gap: 8px; align-items: center; }
+  .gp-progress { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: rgba(255,255,255,0.1); }
+  .gp-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent4), var(--accent)); width: 0%; transition: width 0.3s; }
+
+  /* РЕК-ТОЧКА */
+  .rec-dot { display: inline-block; width: 7px; height: 7px; background: var(--danger); border-radius: 50%; margin-right: 4px; opacity: 0; }
+  .device-card.on .rec-dot { opacity: 1; animation: blink 1s infinite; }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .vacuum-track { height: 35px; background: rgba(255,255,255,0.05); border-radius: 6px; margin-top: 10px; position: relative; overflow: hidden; }
+  .vacuum-icon { position: absolute; top: 50%; left: 10%; transform: translateY(-50%); font-size: 18px; }
+  .device-card.on .vacuum-icon { animation: vacuumMove 4s infinite linear; }
+  @keyframes vacuumMove { 0% { left: 10%; top: 50%; } 25% { left: 80%; top: 30%; } 50% { left: 60%; top: 70%; } 75% { left: 20%; top: 40%; } 100% { left: 10%; top: 50%; } }
+
+  /* АВТОМАТИЗАЦИИ */
+  .automation-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 12px; display: grid; grid-template-columns: auto 1fr auto; gap: 15px; align-items: center; transition: 0.3s; }
+  .automation-card:hover { border-color: var(--accent); }
+  .automation-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .automation-info .name { font-weight: 600; margin-bottom: 3px; }
+  .automation-info .desc { font-size: 12px; color: var(--muted); }
+  .automation-info .stats { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* РАСПИСАНИЯ */
+  .schedule-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 12px; display: flex; gap: 15px; align-items: center; }
+  .schedule-time { font-size: 24px; font-weight: 700; color: var(--accent); min-width: 80px; }
+  .schedule-info { flex: 1; }
+  .schedule-info .name { font-weight: 600; margin-bottom: 3px; }
+  .schedule-info .days { font-size: 12px; color: var(--muted); display: flex; gap: 4px; margin-top: 6px; }
+  .day-chip { padding: 2px 8px; background: var(--bg3); border-radius: 6px; font-size: 10px; }
+  .day-chip.active { background: var(--accent); color: #fff; }
+
+  /* AI-АССИСТЕНТ */
+  .ai-chat { position: fixed; bottom: 100px; right: 20px; width: 380px; max-width: calc(100vw - 40px); height: 520px; max-height: calc(100vh - 140px); background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); z-index: 100; display: none; flex-direction: column; overflow: hidden; }
+  .ai-chat.open { display: flex; animation: chatIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes chatIn { from { transform: translateY(20px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+  .ai-header { padding: 15px 20px; background: linear-gradient(135deg, var(--accent), var(--accent4)); color: #fff; display: flex; justify-content: space-between; align-items: center; }
+  .ai-header h3 { font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .ai-status { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: blink 2s infinite; }
+  .ai-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+  .ai-message { max-width: 85%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.4; animation: msgIn 0.3s; }
+  @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .ai-message.bot { background: var(--card); border-bottom-left-radius: 4px; align-self: flex-start; }
+  .ai-message.user { background: linear-gradient(135deg, var(--accent), var(--accent4)); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
+  .ai-message.typing { display: flex; gap: 4px; padding: 12px 14px; }
+  .typing-dot { width: 6px; height: 6px; background: var(--muted); border-radius: 50%; animation: typing 1.4s infinite; }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing { 0%,60%,100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-6px); opacity: 1; } }
+  .ai-input-area { padding: 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+  .ai-input { flex: 1; padding: 10px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; color: var(--text); outline: none; font-size: 13px; }
+  .ai-send { width: 38px; height: 38px; background: linear-gradient(135deg, var(--accent), var(--accent4)); border: none; border-radius: 50%; color: #fff; cursor: pointer; font-size: 16px; transition: 0.3s; }
+  .ai-send:hover { transform: scale(1.1); }
+  .ai-suggestions { display: flex; gap: 6px; padding: 0 12px 10px; flex-wrap: wrap; }
+  .ai-suggestion { padding: 6px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; font-size: 11px; cursor: pointer; transition: 0.3s; }
+  .ai-suggestion:hover { border-color: var(--accent4); color: var(--accent4); }
+
+  /* АНАЛИТИКА */
+  .analytics-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 20px; }
+  @media (max-width: 900px) { .analytics-grid { grid-template-columns: 1fr; } }
+  .analytics-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+  .analytics-card h3 { font-size: 15px; margin-bottom: 15px; }
+  .bar-chart { display: flex; flex-direction: column; gap: 10px; }
+  .bar-row { display: grid; grid-template-columns: 100px 1fr 60px; gap: 10px; align-items: center; font-size: 12px; }
+  .bar-label { color: var(--muted); }
+  .bar-track { height: 20px; background: var(--bg3); border-radius: 10px; overflow: hidden; position: relative; }
+  .bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent4)); border-radius: 10px; transition: 1s; display: flex; align-items: center; padding-left: 8px; color: #fff; font-size: 10px; font-weight: 600; }
+  .bar-value { text-align: right; font-weight: 600; }
+
+  /* БЕЗОПАСНОСТЬ */
+  .security-status { background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(79,172,254,0.1)); border: 1px solid var(--success); border-radius: 16px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 20px; }
+  .security-icon { width: 60px; height: 60px; background: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #fff; }
+  .security-info h3 { font-size: 18px; margin-bottom: 4px; }
+  .security-info p { color: var(--muted); font-size: 13px; }
+  .event-timeline { position: relative; padding-left: 30px; }
+  .event-timeline::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+  .event-item { position: relative; padding: 12px; background: var(--card); border-radius: 12px; margin-bottom: 10px; border-left: 3px solid var(--accent); animation: fadeIn 0.3s; }
+  .event-item::before { content: ''; position: absolute; left: -24px; top: 18px; width: 10px; height: 10px; background: var(--accent); border-radius: 50%; border: 2px solid var(--bg); }
+  .event-item.danger { border-left-color: var(--danger); }
+  .event-item.danger::before { background: var(--danger); }
+  .event-item.warning { border-left-color: var(--warning); }
+  .event-item.warning::before { background: var(--warning); }
+  .event-item.success { border-left-color: var(--success); }
+  .event-item.success::before { background: var(--success); }
+  .event-time { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .event-text { font-size: 13px; }
+
+  /* СЕМЬЯ */
+  .family-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
+  .family-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: center; transition: 0.3s; }
+  .family-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+  .family-avatar { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent4)); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: #fff; margin: 0 auto 12px; }
+  .family-name { font-weight: 600; margin-bottom: 4px; }
+  .family-role { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .family-role.admin { color: var(--accent); }
+  .family-role.user { color: var(--success); }
+  .family-role.guest { color: var(--warning); }
+  .family-status { display: inline-block; padding: 3px 10px; background: rgba(74,222,128,0.15); color: var(--success); border-radius: 10px; font-size: 11px; }
+  .family-status.offline { background: rgba(139,149,176,0.15); color: var(--muted); }
+
+  /* ЭНЕРГОАУДИТ */
+  .audit-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; }
+  .audit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+  .audit-grade { font-size: 32px; font-weight: 700; padding: 6px 16px; border-radius: 10px; }
+  .grade-A { background: rgba(74,222,128,0.2); color: var(--success); }
+  .tip-card { background: var(--bg3); border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; }
+  .tip-icon { font-size: 20px; flex-shrink: 0; }
+  .tip-text { font-size: 13px; }
+  .tip-text strong { color: var(--accent); }
+
+  /* МОДАЛЬНОЕ ОКНО */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 20px; }
+  .modal-overlay.show { display: flex; animation: fadeIn 0.3s; }
+  .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 25px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; animation: modalIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes modalIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+  .modal-header h3 { font-size: 18px; }
+  .close-btn { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; transition: 0.3s; }
+  .close-btn:hover { color: var(--danger); transform: rotate(90deg); }
+  .modal-body { margin-bottom: 20px; }
+  .modal-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .modal-row:last-child { border-bottom: none; }
+  .modal-row .label { color: var(--muted); }
+  .modal-row .value { font-weight: 600; }
+
+  /* КОМАНДНАЯ ПАЛИТРА */
+  .command-palette { position: fixed; top: 20%; left: 50%; transform: translateX(-50%) scale(0.9); width: 90%; max-width: 600px; background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); z-index: 200; display: none; overflow: hidden; opacity: 0; transition: 0.3s; }
+  .command-palette.show { display: block; opacity: 1; transform: translateX(-50%) scale(1); }
+  .command-input { width: 100%; padding: 16px 20px; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 15px; outline: none; }
+  .command-list { max-height: 400px; overflow-y: auto; padding: 8px; }
+  .command-item { padding: 10px 14px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; font-size: 13px; }
+  .command-item:hover, .command-item.selected { background: var(--card-hover); }
+  .command-item .icon { font-size: 18px; width: 24px; text-align: center; }
+  .command-item .text { flex: 1; }
+
+  /* TOAST */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+  .toast { background: var(--bg2); color: var(--text); padding: 12px 20px; border-radius: 12px; border-left: 4px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: toastIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); min-width: 260px; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(10px); font-size: 13px; }
+  .toast.success { border-left-color: var(--success); }
+  .toast.error { border-left-color: var(--danger); }
+  .toast.warning { border-left-color: var(--warning); }
+  .toast.hide { animation: toastOut 0.4s ease forwards; }
+  @keyframes toastIn { from { transform: translateX(400px) scale(0.8); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+  @keyframes toastOut { to { transform: translateX(400px); opacity: 0; } }
+
+  /* ПАНЕЛЬ УВЕДОМЛЕНИЙ */
+  .notif-panel { position: fixed; top: 0; right: -400px; width: 380px; max-width: 100%; height: 100vh; background: var(--bg2); border-left: 1px solid var(--border); padding: 20px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 90; overflow-y: auto; }
+  .notif-panel.open { right: 0; }
+  .notif-panel h3 { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+  .notif-item { padding: 12px; background: var(--card); border-radius: 10px; margin-bottom: 10px; border-left: 3px solid var(--accent); animation: fadeIn 0.3s; font-size: 13px; }
+  .notif-item .time { font-size: 11px; color: var(--muted); margin-top: 5px; }
+
+  /* ИСТОРИЯ */
+  .history-list { max-height: 500px; overflow-y: auto; }
+  .history-item { display: flex; gap: 12px; padding: 12px; background: var(--card); border-radius: 10px; margin-bottom: 8px; align-items: center; transition: 0.3s; }
+  .history-item:hover { background: var(--card-hover); transform: translateX(5px); }
+  .history-icon { width: 36px; height: 36px; background: linear-gradient(135deg, rgba(79,172,254,0.2), rgba(236,72,153,0.1)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .history-text { flex: 1; font-size: 13px; }
+  .history-time { font-size: 11px; color: var(--muted); }
+
+  /* НАСТРОЙКИ */
+  .settings-section { background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
+  .settings-section h3 { margin-bottom: 15px; font-size: 15px; }
+  .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .setting-row:last-child { border-bottom: none; }
+
+  /* ПРОФИЛЬ */
+  .profile-header { background: linear-gradient(135deg, rgba(79,172,254,0.2), rgba(236,72,153,0.15)); border: 1px solid var(--border); border-radius: 18px; padding: 30px; text-align: center; margin-bottom: 20px; }
+
+  /* ДОСТИЖЕНИЯ */
+  .achievements { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .achievement { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; text-align: center; transition: 0.3s; }
+  .achievement.unlocked { background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(236,72,153,0.1)); border-color: var(--warning); }
+  .achievement.locked { opacity: 0.5; filter: grayscale(1); }
+  .achievement:hover { transform: translateY(-3px); }
+  .achievement-icon { font-size: 32px; margin-bottom: 8px; }
+  .achievement-name { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+  .achievement-desc { font-size: 11px; color: var(--muted); }
+
+  /* КАРТА */
+  .home-map { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 20px; margin-bottom: 20px; }
+  .map-svg { width: 100%; height: 320px; }
+  .room-shape { fill: var(--card); stroke: var(--border); stroke-width: 2; cursor: pointer; transition: 0.3s; }
+  .room-shape:hover { fill: rgba(79,172,254,0.15); stroke: var(--accent); }
+  .room-label { fill: var(--text); font-size: 13px; font-weight: 600; pointer-events: none; text-anchor: middle; }
+  .room-temp { fill: var(--muted); font-size: 10px; pointer-events: none; text-anchor: middle; }
+  .device-dot { cursor: pointer; transition: 0.3s; }
+  .device-dot.on { fill: var(--accent); filter: drop-shadow(0 0 6px var(--accent)); animation: dotPulse 2s infinite; }
+  .device-dot.off { fill: var(--muted); }
+  @keyframes dotPulse { 0%,100% { r: 5; } 50% { r: 7; } }
+
+  /* КОМНАТЫ */
+  .rooms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; }
+  .room-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; cursor: pointer; transition: 0.3s; }
+  .room-card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: var(--glow); }
+  .room-icon { font-size: 40px; margin-bottom: 12px; }
+  .room-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .room-info { color: var(--muted); font-size: 12px; }
+
+  /* СКРЫТЫЙ YOUTUBE */
+  #yt-player-wrap { position: fixed; bottom: -1000px; left: -1000px; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+  /* АДАПТИВ */
+  @media (max-width: 900px) {
+    .app.active { grid-template-columns: 1fr; }
+    .sidebar { position: fixed; left: -260px; width: 240px; z-index: 50; transition: 0.3s; }
+    .sidebar.open { left: 0; }
+    .main { padding: 15px; }
+    .menu-toggle { display: flex !important; }
+    .search-box input { width: 80px; }
+    .top-widgets { grid-template-columns: 1fr; }
+    .home-score { grid-template-columns: 1fr; text-align: center; }
+    .score-circle { margin: 0 auto; }
+    .global-player { padding: 0 10px; gap: 10px; }
+    .gp-title { font-size: 12px; }
+    .gp-artist { font-size: 10px; }
+    .ai-chat { bottom: 90px; right: 10px; width: calc(100vw - 20px); }
+  }
+  .menu-toggle { display: none; }
+
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+<div class="gradient-orb orb1"></div>
+<div class="gradient-orb orb2"></div>
+<div class="gradient-orb orb3"></div>
+
+<!-- SPLASH -->
+<div class="splash" id="splash">
+  <div class="splash-logo">🏠</div>
+  <div class="splash-text">SmartHome ULTIMATE</div>
+  <div class="splash-bar"></div>
+</div>
+
+<!-- СКРЫТЫЙ YOUTUBE PLAYER -->
+<div id="yt-player-wrap"><div id="yt-player"></div></div>
+
+<!-- АВТОРИЗАЦИЯ -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-box">
+    <h1>🏠 SmartHome ULTIMATE</h1>
+    <p class="subtitle">Умный дом с реальной музыкой</p>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login', event)">Вход</div>
+      <div class="auth-tab" onclick="switchAuthTab('register', event)">Регистрация</div>
+    </div>
+    <form class="auth-form active" id="loginForm">
+      <input type="text" id="loginUsername" placeholder="Логин или email" required>
+      <input type="password" id="loginPassword" placeholder="Пароль" required>
+      <button type="submit" class="auth-btn"><span>Войти</span></button>
+      <p class="error-msg" id="loginError"></p>
+      <p class="hint">Демо: admin / admin123</p>
+    </form>
+    <form class="auth-form" id="registerForm">
+      <input type="text" id="regName" placeholder="Ваше имя" required>
+      <input type="email" id="regEmail" placeholder="Email" required>
+      <input type="text" id="regUsername" placeholder="Логин" required>
+      <input type="password" id="regPassword" placeholder="Пароль (мин. 4 символа)" required>
+      <div class="role-selector">
+        <div class="role-option selected" data-role="admin" onclick="selectRole(this)"><span class="icon">👑</span>Админ</div>
+        <div class="role-option" data-role="user" onclick="selectRole(this)"><span class="icon">👤</span>Пользователь</div>
+        <div class="role-option" data-role="guest" onclick="selectRole(this)"><span class="icon">🎫</span>Гость</div>
+      </div>
+      <button type="submit" class="auth-btn"><span>Создать аккаунт</span></button>
+      <p class="error-msg" id="regError"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ПРИЛОЖЕНИЕ -->
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <div class="logo-icon">🏠</div>
+      <span>SmartHome</span>
+    </div>
+    <div class="nav-section">Основное</div>
+    <div class="nav-item active" data-page="dashboard"><span class="icon">📊</span>Дашборд</div>
+    <div class="nav-item" data-page="devices"><span class="icon">💡</span>Устройства<span class="nav-badge" id="devicesBadge">10</span></div>
+    <div class="nav-item" data-page="map"><span class="icon">🗺️</span>Карта дома</div>
+    <div class="nav-item" data-page="rooms"><span class="icon">🏡</span>Комнаты</div>
+    <div class="nav-item" data-page="scenes"><span class="icon">🎬</span>Сцены</div>
+    <div class="nav-section">Медиа</div>
+    <div class="nav-item" data-page="music"><span class="icon">🎵</span>Музыка<span class="nav-badge" style="background:var(--accent4)">HOT</span></div>
+    <div class="nav-section">Автоматизация</div>
+    <div class="nav-item" data-page="automations"><span class="icon">⚡</span>Автоматизации</div>
+    <div class="nav-item" data-page="schedules"><span class="icon">⏰</span>Расписания</div>
+    <div class="nav-section">Аналитика</div>
+    <div class="nav-item" data-page="analytics"><span class="icon">📈</span>Аналитика</div>
+    <div class="nav-item" data-page="security"><span class="icon">🛡️</span>Безопасность<span class="nav-badge danger" id="securityBadge" style="display:none;">0</span></div>
+    <div class="nav-item" data-page="energy"><span class="icon">🔋</span>Энергоаудит</div>
+    <div class="nav-section">Система</div>
+    <div class="nav-item" data-page="family"><span class="icon">👨‍👩‍👧</span>Семья</div>
+    <div class="nav-item" data-page="achievements"><span class="icon">🏆</span>Достижения</div>
+    <div class="nav-item" data-page="history"><span class="icon">📜</span>История</div>
+    <div class="nav-item" data-page="settings"><span class="icon">⚙️</span>Настройки</div>
+    <div class="nav-item" data-page="profile"><span class="icon">👤</span>Профиль</div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="icon-btn menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+        <h1 id="pageTitle">Дашборд</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="search-box" onclick="openCommandPalette()">🔍 <input type="text" placeholder="Поиск..." readonly><span class="kbd">Ctrl+K</span></div>
+        <button class="lang-btn" onclick="toggleLang()" id="langBtn">RU</button>
+        <button class="icon-btn voice" id="voiceBtn" onclick="toggleVoice()" title="Голос">🎤</button>
+        <button class="icon-btn" onclick="toggleAI()" title="AI">🤖</button>
+        <button class="icon-btn" onclick="toggleNotifPanel()">🔔<span class="badge" id="notifBadge">3</span></button>
+        <div class="user-chip" onclick="goToPage('profile')">
+          <div class="avatar" id="userAvatar">A</div>
+          <span id="userName">Admin</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ДАШБОРД -->
+    <div class="page active" id="page-dashboard">
+      <div class="home-score">
+        <div class="score-circle">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <defs><linearGradient id="scoreGradient" x1="0" x2="1"><stop offset="0%" stop-color="#4facfe"/><stop offset="50%" stop-color="#a855f7"/><stop offset="100%" stop-color="#ec4899"/></linearGradient></defs>
+            <circle class="score-bg" cx="60" cy="60" r="52"/>
+            <circle class="score-fill" id="scoreFill" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+          </svg>
+          <div class="score-value">
+            <div class="score-number" id="scoreNumber">0</div>
+            <div class="score-label">состояние</div>
+          </div>
+        </div>
+        <div>
+          <h2 style="margin-bottom: 12px;">Состояние дома</h2>
+          <div class="score-details">
+            <div class="score-item"><div class="label">Комфорт</div><div class="value" id="comfortScore">—</div></div>
+            <div class="score-item"><div class="label">Безопасность</div><div class="value" id="safetyScore">—</div></div>
+            <div class="score-item"><div class="label">Эффективность</div><div class="value" id="efficiencyScore">—</div></div>
+            <div class="score-item"><div class="label">Настроение</div><div class="value" id="moodScore">—</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="top-widgets">
+        <div class="clock-widget">
+          <div class="analog-clock">
+            <div class="clock-hand hour-hand" id="hourHand"></div>
+            <div class="clock-hand minute-hand" id="minuteHand"></div>
+            <div class="clock-hand second-hand" id="secondHand"></div>
+            <div class="clock-center"></div>
+          </div>
+          <div>
+            <div class="digital-time" id="digitalTime">--:--:--</div>
+            <div class="digital-date" id="digitalDate">—</div>
+          </div>
+        </div>
+        <div class="weather-widget">
+          <div class="weather-info">
+            <div class="weather-temp" id="weatherTemp">+18°</div>
+            <div class="weather-desc" id="weatherDesc">Ясно · Москва</div>
+          </div>
+          <div class="weather-icon" id="weatherIcon">☀️</div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card"><div class="stat-icon">⚡</div><div class="label">Активных устройств</div><div class="value" id="activeCount">0</div><div class="trend up">▲ из 10</div></div>
+        <div class="stat-card"><div class="stat-icon">🌡️</div><div class="label">Температура</div><div class="value" id="homeTemp">22°C</div><div class="trend up">Комфортно</div></div>
+        <div class="stat-card"><div class="stat-icon">💧</div><div class="label">Влажность</div><div class="value">48%</div><div class="trend up">Норма</div></div>
+        <div class="stat-card"><div class="stat-icon">🔋</div><div class="label">Энергия сегодня</div><div class="value" id="powerUsage">1.2 кВт</div><div class="trend down">▼ -5%</div></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>⚡ Энергопотребление</h3>
+          <div class="chart-tabs">
+            <div class="chart-tab active" onclick="setChartRange('day', this)">День</div>
+            <div class="chart-tab" onclick="setChartRange('week', this)">Неделя</div>
+            <div class="chart-tab" onclick="setChartRange('month', this)">Месяц</div>
+          </div>
+        </div>
+        <svg class="chart-svg" viewBox="0 0 800 180" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="chartGradient" x1="0" x2="1"><stop offset="0%" stop-color="#4facfe"/><stop offset="100%" stop-color="#ec4899"/></linearGradient>
+            <linearGradient id="chartAreaGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#4facfe" stop-opacity="0.5"/><stop offset="100%" stop-color="#ec4899" stop-opacity="0"/></linearGradient>
+          </defs>
+          <g id="chartGrid"></g>
+          <path class="chart-area" id="chartArea"/>
+          <path class="chart-line" id="chartLine"/>
+          <g id="chartDots"></g>
+          <g id="chartLabels"></g>
+        </svg>
+      </div>
+
+      <div class="section-title"><h2>⚡ Быстрый доступ</h2></div>
+      <div class="devices-grid" id="devicesGrid"></div>
+    </div>
+
+    <!-- УСТРОЙСТВА -->
+    <div class="page" id="page-devices">
+      <div class="section-title">
+        <h2>Все устройства</h2>
+        <div class="filter-tabs">
+          <div class="tab active" data-filter="all">Все</div>
+          <div class="tab" data-filter="on">Вкл</div>
+          <div class="tab" data-filter="off">Выкл</div>
+        </div>
+      </div>
+      <div class="devices-grid" id="devicesGridAll"></div>
+    </div>
+
+    <!-- МУЗЫКА -->
+    <div class="page" id="page-music">
+      <div class="section-title"><h2>🎵 Музыкальная библиотека</h2></div>
+      <div style="background: linear-gradient(135deg, rgba(236,72,153,0.2), rgba(168,85,247,0.15)); border: 1px solid var(--border); border-radius: 18px; padding: 25px; margin-bottom: 20px; text-align: center;">
+        <div style="font-size: 60px; margin-bottom: 10px;">🎶</div>
+        <h2 style="margin-bottom: 5px;">Слушайте любимую музыку</h2>
+        <p style="color: var(--muted); font-size: 13px;">Нажмите на любую песню, чтобы начать воспроизведение</p>
+      </div>
+      <div id="playlistContainer"></div>
+    </div>
+
+    <!-- КАРТА -->
+    <div class="page" id="page-map">
+      <div class="section-title"><h2>🗺️ Интерактивная карта</h2></div>
+      <div class="home-map">
+        <svg class="map-svg" viewBox="0 0 800 400">
+          <rect class="room-shape" data-room="Гостиная" x="20" y="20" width="280" height="180" rx="8"/>
+          <text class="room-label" x="160" y="100">🛋️ Гостиная</text>
+          <text class="room-temp" x="160" y="125">22°C · 4 устр.</text>
+          <rect class="room-shape" data-room="Спальня" x="320" y="20" width="220" height="180" rx="8"/>
+          <text class="room-label" x="430" y="100">🛏️ Спальня</text>
+          <text class="room-temp" x="430" y="125">20°C · 2 устр.</text>
+          <rect class="room-shape" data-room="Кухня" x="560" y="20" width="220" height="180" rx="8"/>
+          <text class="room-label" x="670" y="100">🍳 Кухня</text>
+          <text class="room-temp" x="670" y="125">24°C · 2 устр.</text>
+          <rect class="room-shape" data-room="Ванная" x="20" y="220" width="200" height="160" rx="8"/>
+          <text class="room-label" x="120" y="300">🛁 Ванная</text>
+          <text class="room-temp" x="120" y="325">25°C · 1 устр.</text>
+          <rect class="room-shape" data-room="Двор" x="240" y="220" width="280" height="160" rx="8"/>
+          <text class="room-label" x="380" y="300">🌳 Двор</text>
+          <text class="room-temp" x="380" y="325">15°C · 2 устр.</text>
+          <rect class="room-shape" data-room="Гараж" x="540" y="220" width="240" height="160" rx="8"/>
+          <text class="room-label" x="660" y="300">🚗 Гараж</text>
+          <text class="room-temp" x="660" y="325">18°C · 1 устр.</text>
+          <circle class="device-dot" data-device="light" cx="100" cy="80" r="5"/>
+          <circle class="device-dot" data-device="thermo" cx="220" cy="150" r="5"/>
+          <circle class="device-dot" data-device="curtains" cx="160" cy="170" r="5"/>
+          <circle class="device-dot" data-device="music" cx="400" cy="80" r="5"/>
+          <circle class="device-dot" data-device="camera" cx="300" cy="280" r="5"/>
+          <circle class="device-dot" data-device="alarm" cx="660" cy="80" r="5"/>
+          <circle class="device-dot" data-device="vacuum" cx="180" cy="120" r="5"/>
+          <circle class="device-dot" data-device="tv" cx="80" cy="130" r="5"/>
+          <circle class="device-dot" data-device="speaker" cx="450" cy="140" r="5"/>
+          <circle class="device-dot" data-device="ac" cx="620" cy="140" r="5"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- КОМНАТЫ -->
+    <div class="page" id="page-rooms">
+      <div class="section-title"><h2>Комнаты</h2></div>
+      <div class="rooms-grid">
+        <div class="room-card" onclick="filterByRoom('Гостиная')"><div class="room-icon">🛋️</div><div class="room-name">Гостиная</div><div class="room-info">4 устройства · 22°C</div></div>
+        <div class="room-card" onclick="filterByRoom('Спальня')"><div class="room-icon">🛏️</div><div class="room-name">Спальня</div><div class="room-info">2 устройства · 20°C</div></div>
+        <div class="room-card" onclick="filterByRoom('Кухня')"><div class="room-icon">🍳</div><div class="room-name">Кухня</div><div class="room-info">2 устройства · 24°C</div></div>
+        <div class="room-card" onclick="filterByRoom('Ванная')"><div class="room-icon">🛁</div><div class="room-name">Ванная</div><div class="room-info">1 устройство · 25°C</div></div>
+        <div class="room-card" onclick="filterByRoom('Двор')"><div class="room-icon">🌳</div><div class="room-name">Двор</div><div class="room-info">2 устройства · 15°C</div></div>
+        <div class="room-card" onclick="filterByRoom('Гараж')"><div class="room-icon">🚗</div><div class="room-name">Гараж</div><div class="room-info">1 устройство · 18°C</div></div>
+      </div>
+    </div>
+
+    <!-- СЦЕНЫ -->
+    <div class="page" id="page-scenes">
+      <div class="section-title"><h2>Быстрые сцены</h2></div>
+      <div class="devices-grid">
+        <div class="device-card" onclick="applyScene('morning')"><div class="device-icon">🌅</div><div class="device-name">Доброе утро</div><div class="device-status">Шторы открыты, свет 80%</div></div>
+        <div class="device-card" onclick="applyScene('movie')"><div class="device-icon">🎬</div><div class="device-name">Кино вечер</div><div class="device-status">Свет 20%, шторы закрыты</div></div>
+        <div class="device-card" onclick="applyScene('night')"><div class="device-icon">🌙</div><div class="device-name">Спокойной ночи</div><div class="device-status">Всё выключено, охрана</div></div>
+        <div class="device-card" onclick="applyScene('away')"><div class="device-icon">🏃</div><div class="device-name">Я ушёл</div><div class="device-status">Экономия, сигнализация</div></div>
+        <div class="device-card" onclick="applyScene('party')"><div class="device-icon">🎉</div><div class="device-name">Вечеринка</div><div class="device-status">🎵 Inna - Hot + RGB</div></div>
+        <div class="device-card" onclick="applyScene('work')"><div class="device-icon">💼</div><div class="device-name">Работа</div><div class="device-status">Яркий свет, тишина</div></div>
+      </div>
+    </div>
+
+    <!-- АВТОМАТИЗАЦИИ -->
+    <div class="page" id="page-automations">
+      <div class="section-title"><h2>⚡ Автоматизации</h2><button class="mini-btn" onclick="showToast('🚧 Конструктор (демо)', 'warning')">+ Новая</button></div>
+      <div id="automationsList"></div>
+    </div>
+
+    <!-- РАСПИСАНИЯ -->
+    <div class="page" id="page-schedules">
+      <div class="section-title"><h2>⏰ Расписания</h2><button class="mini-btn" onclick="showToast('🚧 Конструктор (демо)', 'warning')">+ Новое</button></div>
+      <div id="schedulesList"></div>
+    </div>
+
+    <!-- АНАЛИТИКА -->
+    <div class="page" id="page-analytics">
+      <div class="section-title"><h2>📈 Аналитика</h2></div>
+      <div class="analytics-grid">
+        <div class="analytics-card">
+          <h3>Потребление по комнатам</h3>
+          <div class="bar-chart" id="roomBars"></div>
+        </div>
+        <div class="analytics-card">
+          <h3>Устройства по типу</h3>
+          <div style="text-align:center; padding: 20px;">
+            <div style="font-size: 60px; margin-bottom: 10px;">📊</div>
+            <div style="font-size: 32px; font-weight: 700;">10</div>
+            <div style="color: var(--muted); font-size: 12px;">всего устройств</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- БЕЗОПАСНОСТЬ -->
+    <div class="page" id="page-security">
+      <div class="section-title"><h2>🛡️ Безопасность</h2></div>
+      <div class="security-status">
+        <div class="security-icon">🛡️</div>
+        <div class="security-info">
+          <h3>Система под защитой</h3>
+          <p>Угроз не обнаружено</p>
+        </div>
+      </div>
+      <div class="section-title"><h2>Журнал событий</h2></div>
+      <div class="event-timeline" id="securityTimeline"></div>
+    </div>
+
+    <!-- ЭНЕРГОАУДИТ -->
+    <div class="page" id="page-energy">
+      <div class="section-title"><h2>🔋 Энергоаудит</h2></div>
+      <div class="audit-card">
+        <div class="audit-header">
+          <div>
+            <h3>Класс энергоэффективности</h3>
+            <p style="color:var(--muted); font-size:12px; margin-top:4px;">На основе потребления за месяц</p>
+          </div>
+          <div class="audit-grade grade-A">A</div>
+        </div>
+        <div class="stats" style="margin-top:15px;">
+          <div class="stat-card"><div class="label">Потреблено</div><div class="value">142 кВт</div></div>
+          <div class="stat-card"><div class="label">Сэкономлено</div><div class="value" style="color:var(--success)">23 кВт</div></div>
+          <div class="stat-card"><div class="label">Стоимость</div><div class="value">710 ₽</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- СЕМЬЯ -->
+    <div class="page" id="page-family">
+      <div class="section-title"><h2>👨‍👩‍👧 Семья</h2><button class="mini-btn" onclick="showToast('📧 Ссылка скопирована!', 'success')">+ Пригласить</button></div>
+      <div class="family-grid" id="familyGrid"></div>
+    </div>
+
+    <!-- ДОСТИЖЕНИЯ -->
+    <div class="page" id="page-achievements">
+      <div class="section-title"><h2>🏆 Достижения</h2><span style="color:var(--muted);" id="achieveCount">0/12</span></div>
+      <div class="achievements" id="achievementsList"></div>
+    </div>
+
+    <!-- ИСТОРИЯ -->
+    <div class="page" id="page-history">
+      <div class="section-title"><h2>История действий</h2><button class="mini-btn" onclick="clearHistory()">🗑️ Очистить</button></div>
+      <div class="history-list" id="historyList"></div>
+    </div>
+
+    <!-- НАСТРОЙКИ -->
+    <div class="page" id="page-settings">
+      <div class="settings-section">
+        <h3>🎨 Внешний вид</h3>
+        <div class="setting-row"><span>Тёмная тема</span><label class="switch"><input type="checkbox" id="themeToggle" checked onchange="toggleTheme()"><span class="slider-sw"></span></label></div>
+        <div class="setting-row"><span>Анимация частиц</span><label class="switch"><input type="checkbox" id="particlesToggle" checked onchange="toggleParticles()"><span class="slider-sw"></span></label></div>
+        <div class="setting-row"><span>Звуковые эффекты</span><label class="switch"><input type="checkbox" id="soundToggle" checked onchange="toggleSound()"><span class="slider-sw"></span></label></div>
+      </div>
+      <div class="settings-section">
+        <h3>🎵 Музыка</h3>
+        <div class="setting-row"><span>Автовоспроизведение</span><label class="switch"><input type="checkbox" checked><span class="slider-sw"></span></label></div>
+        <div class="setting-row"><span>Качество</span><span>Высокое</span></div>
+      </div>
+      <div class="settings-section">
+        <h3>ℹ️ О системе</h3>
+        <div class="setting-row"><span>Версия</span><span class="value">ULTIMATE 5.0</span></div>
+        <div class="setting-row"><span>Сборка</span><span class="value">2026.06.19</span></div>
+      </div>
+    </div>
+
+    <!-- ПРОФИЛЬ -->
+    <div class="page" id="page-profile">
+      <div class="profile-header">
+        <div class="avatar" style="width:90px; height:90px; font-size:36px; margin:0 auto 12px;" id="profileAvatar">A</div>
+        <h2 id="profileName">Admin</h2>
+        <p style="color:var(--muted); margin-top:5px;" id="profileEmail">admin@smarthome.local</p>
+        <p style="color:var(--muted); font-size:12px; margin-top:5px;" id="profileRole">Администратор</p>
+      </div>
+      <div class="settings-section">
+        <h3>👤 Личные данные</h3>
+        <div class="setting-row"><span>Имя</span><input type="text" id="profileNameInput" value="Admin" style="background:var(--card); border:1px solid var(--border); padding:6px 12px; border-radius:8px; color:var(--text); outline:none;"></div>
+        <div class="setting-row"><button class="mini-btn" onclick="saveProfile()">💾 Сохранить</button><button class="mini-btn" onclick="logout()" style="background:rgba(255,107,107,0.2); border-color:var(--danger); color:var(--danger);">🚪 Выйти</button></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- AI-ЧАТ -->
+<div class="ai-chat" id="aiChat">
+  <div class="ai-header">
+    <h3><span class="ai-status"></span> AI-ассистент</h3>
+    <button class="close-btn" onclick="toggleAI()" style="color:#fff;">✕</button>
+  </div>
+  <div class="ai-messages" id="aiMessages">
+    <div class="ai-message bot">Привет! Я AI-ассистент. Спросите о устройствах, погоде, энергии или попросите включить музыку 🎵</div>
+  </div>
+  <div class="ai-suggestions">
+    <div class="ai-suggestion" onclick="sendAIMessage('Включи Hot Inna')">Включи Hot Inna</div>
+    <div class="ai-suggestion" onclick="sendAIMessage('Какая температура?')">Температура?</div>
+    <div class="ai-suggestion" onclick="sendAIMessage('Сцена вечеринка')">Вечеринка</div>
+  </div>
+  <div class="ai-input-area">
+    <input type="text" class="ai-input" id="aiInput" placeholder="Сообщение..." onkeydown="if(event.key==='Enter') sendAIMessage()">
+    <button class="ai-send" onclick="sendAIMessage()">➤</button>
+  </div>
+</div>
+
+<!-- ГЛОБАЛЬНЫЙ МИНИ-ПЛЕЕР -->
+<div class="global-player" id="globalPlayer">
+  <div class="gp-progress"><div class="gp-progress-fill" id="gpProgress"></div></div>
+  <div class="gp-cover" id="gpCover">🎵</div>
+  <div class="gp-info">
+    <div class="gp-title" id="gpTitle">—</div>
+    <div class="gp-artist" id="gpArtist">—</div>
+  </div>
+  <div class="gp-controls">
+    <button class="music-btn" onclick="prevTrack()">⏮</button>
+    <button class="music-btn play" id="gpPlayBtn" onclick="togglePlay()">▶</button>
+    <button class="music-btn" onclick="nextTrack()">⏭</button>
+  </div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Устройство</h3>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- КОМАНДНАЯ ПАЛИТРА -->
+<div class="command-palette" id="commandPalette">
+  <input type="text" class="command-input" id="commandInput" placeholder="Введите команду...">
+  <div class="command-list" id="commandList"></div>
+</div>
+
+<!-- ПАНЕЛЬ УВЕДОМЛЕНИЙ -->
+<div class="notif-panel" id="notifPanel">
+  <h3>🔔 Уведомления <button class="close-btn" onclick="toggleNotifPanel()">✕</button></h3>
+  <div id="notifList"></div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  // ===== YOUTUBE API =====
+  var tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  var firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+  var ytPlayer;
+  var ytReady = false;
+  var ytProgressInterval = null;
+
+  function onYouTubeIframeAPIReady() {
+    ytPlayer = new YT.Player('yt-player', {
+      height: '1',
+      width: '1',
+      videoId: 'YtG45Jmqp5I', // Inna - Hot
+      playerVars: {
+        'autoplay': 0,
+        'controls': 0,
+        'disablekb': 1,
+        'fs': 0,
+        'modestbranding': 1,
+        'rel': 0
+      },
+      events: {
+        'onReady': onPlayerReady,
+        'onStateChange': onPlayerStateChange,
+        'onError': onPlayerError
+      }
+    });
+  }
+
+  function onPlayerReady(event) {
+    ytReady = true;
+    console.log('YouTube player ready');
+  }
+
+  function onPlayerStateChange(event) {
+    if (event.data === YT.PlayerState.ENDED) {
+      nextTrack();
+    }
+    updatePlayButton();
+  }
+
+  function onPlayerError(event) {
+    console.error('YouTube error:', event.data);
+    showToast('⚠️ Ошибка воспроизведения. Попробуйте другую песню.', 'warning');
+  }
+
+  // ===== ПЛЕЙЛИСТ =====
+  const playlist = [
+    { id: 'YtG45Jmqp5I', title: 'Hot', artist: 'Inna', cover: '🔥', year: 2009 },
+    { id: '07EHv2yPqoc', title: 'Déjà Vu', artist: 'Inna feat. Bob Taylor', cover: '💫', year: 2009 },
+    { id: '2KeZHuBkE9E', title: 'Sun Is Up', artist: 'Inna', cover: '☀️', year: 2010 },
+    { id: 'budxEwvLzqk', title: 'Amazing', artist: 'Inna', cover: '✨', year: 2010 },
+    { id: 'gU02y2VMvVg', title: 'Be My Lover', artist: 'Inna', cover: '💖', year: 2015 },
+    { id: 'K7yCk3WvCmE', title: 'Ruleta', artist: 'Inna feat. Erik', cover: '🎲', year: 2017 }
+  ];
+
+  let currentTrackIndex = 0;
+  let isPlaying = false;
+
+  function loadTrack(index, autoplay = true) {
+    if (!ytReady) {
+      showToast('⏳ Плеер загружается...', 'warning');
+      return;
+    }
+    currentTrackIndex = index;
+    const track = playlist[index];
+    try {
+      ytPlayer.loadVideoById(track.id);
+      if (!autoplay) ytPlayer.pauseVideo();
+      updateMusicUI();
+      addHistory('🎵', `Воспроизведение: ${track.title} — ${track.artist}`);
+      unlockAchievement('music');
+    } catch (e) {
+      showToast('⚠️ Ошибка загрузки трека', 'error');
+    }
+  }
+
+  function togglePlay() {
+    if (!ytReady) {
+      showToast('⏳ Плеер загружается...', 'warning');
+      return;
+    }
+    if (isPlaying) {
+      ytPlayer.pauseVideo();
+      isPlaying = false;
+    } else {
+      if (!ytPlayer.getVideoData || !ytPlayer.getVideoData().video_id) {
+        loadTrack(currentTrackIndex, true);
+      } else {
+        ytPlayer.playVideo();
+      }
+      isPlaying = true;
+      unlockAchievement('music');
+    }
+    updatePlayButton();
+    updateMusicUI();
+  }
+
+  function nextTrack() {
+    currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+    loadTrack(currentTrackIndex, true);
+    isPlaying = true;
+    updatePlayButton();
+  }
+
+  function prevTrack() {
+    currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+    loadTrack(currentTrackIndex, true);
+    isPlaying = true;
+    updatePlayButton();
+  }
+
+  function playTrackByIndex(index) {
+    loadTrack(index, true);
+    isPlaying = true;
+    updatePlayButton();
+    showToast(`🎵 ${playlist[index].title} — ${playlist[index].artist}`, 'success');
+  }
+
+  function updatePlayButton() {
+    const btn = document.getElementById('gpPlayBtn');
+    if (btn) btn.textContent = isPlaying ? '⏸' : '▶';
+    const gpCover = document.getElementById('gpCover');
+    if (gpCover) gpCover.classList.toggle('playing', isPlaying);
+  }
+
+  function updateMusicUI() {
+    const track = playlist[currentTrackIndex];
+    document.getElementById('gpTitle').textContent = track.title;
+    document.getElementById('gpArtist').textContent = track.artist;
+    document.getElementById('gpCover').textContent = track.cover;
+    document.getElementById('globalPlayer').classList.add('active');
+    renderPlaylist();
+    renderDevices(currentFilter, 'devicesGrid');
+    renderDevices(currentFilter, 'devicesGridAll');
+  }
+
+  // Прогресс
+  setInterval(() => {
+    if (ytReady && ytPlayer && ytPlayer.getDuration) {
+      try {
+        const dur = ytPlayer.getDuration();
+        const cur = ytPlayer.getCurrentTime();
+        if (dur > 0) {
+          const pct = (cur / dur) * 100;
+          document.getElementById('gpProgress').style.width = pct + '%';
+          // Обновляем прогресс в карточках
+          document.querySelectorAll('.music-progress-fill').forEach(el => el.style.width = pct + '%');
+        }
+      } catch(e) {}
+    }
+  }, 1000);
+
+  function renderPlaylist() {
+    const container = document.getElementById('playlistContainer');
+    if (!container) return;
+    container.innerHTML = playlist.map((t, i) => `
+      <div class="automation-card" style="cursor:pointer; ${i === currentTrackIndex ? 'border-color: var(--accent4); background: linear-gradient(135deg, rgba(236,72,153,0.1), rgba(168,85,247,0.05));' : ''}" onclick="playTrackByIndex(${i})">
+        <div class="automation-icon" style="background: linear-gradient(135deg, var(--accent4), var(--accent3)); font-size: 28px;">${t.cover}</div>
+        <div class="automation-info">
+          <div class="name">${t.title} ${i === currentTrackIndex && isPlaying ? '🔊' : ''}</div>
+          <div class="desc">${t.artist} · ${t.year}</div>
+          <div class="stats">Нажмите для воспроизведения</div>
+        </div>
+        <button class="music-btn play" style="width: 44px; height: 44px;" onclick="event.stopPropagation(); playTrackByIndex(${i})">▶</button>
+      </div>
+    `).join('');
+  }
+
+  // ===== ЧАСТИЦЫ =====
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let particlesEnabled = true;
+
+  function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  class Particle {
+    constructor() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.size = Math.random() * 2 + 0.5;
+      this.opacity = Math.random() * 0.5 + 0.2;
+      this.color = Math.random() > 0.5 ? '79, 172, 254' : '236, 72, 153';
+    }
+    update() {
+      this.x += this.vx; this.y += this.vy;
+      if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+      if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
+      ctx.fill();
+    }
+  }
+  for (let i = 0; i < 70; i++) particles.push(new Particle());
+
+  function animateParticles() {
+    if (!particlesEnabled) { requestAnimationFrame(animateParticles); return; }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(79, 172, 254, ${0.15 * (1 - dist/120)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(animateParticles);
+  }
+  animateParticles();
+  function toggleParticles() { particlesEnabled = document.getElementById('particlesToggle').checked; if (!particlesEnabled) ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+  // ===== ЗВУКИ =====
+  let audioCtx;
+  let soundEnabled = true;
+  function playSound(type) {
+    if (!soundEnabled) return;
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    const sounds = { click: { freq: 800, dur: 0.05 }, success: { freq: 1000, dur: 0.1 }, error: { freq: 200, dur: 0.15 }, toggle: { freq: 600, dur: 0.08 } };
+    const s = sounds[type] || sounds.click;
+    osc.frequency.value = s.freq; osc.type = 'sine';
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + s.dur);
+    osc.start(); osc.stop(audioCtx.currentTime + s.dur);
+  }
+  function toggleSound() { soundEnabled = document.getElementById('soundToggle').checked; }
+
+  // ===== АВТОРИЗАЦИЯ =====
+  function switchAuthTab(tab, e) {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById(tab + 'Form').classList.add('active');
+  }
+  function selectRole(el) {
+    document.querySelectorAll('.role-option').forEach(r => r.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function getUsers() { return JSON.parse(localStorage.getItem('sh_users') || '[]'); }
+  function saveUsers(users) { localStorage.setItem('sh_users', JSON.stringify(users)); }
+
+  if (getUsers().length === 0) {
+    saveUsers([{ username: 'admin', password: 'admin123', email: 'admin@smarthome.local', name: 'Admin', role: 'admin' }]);
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const u = document.getElementById('loginUsername').value.trim();
+    const p = document.getElementById('loginPassword').value;
+    const err = document.getElementById('loginError');
+    const users = getUsers();
+    const user = users.find(x => (x.username === u || x.email === u) && x.password === p);
+    if (user) {
+      err.textContent = '';
+      localStorage.setItem('sh_currentUser', JSON.stringify(user));
+      showApp(user);
+      showToast('✅ Вход выполнен', 'success');
+      addHistory('🔐', 'Вход в систему');
+      playSound('success');
+    } else {
+      err.textContent = '❌ Неверный логин или пароль';
+      document.querySelector('.auth-box').style.animation = 'shake 0.4s';
+      setTimeout(() => document.querySelector('.auth-box').style.animation = '', 400);
+      playSound('error');
+    }
+  });
+
+  document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const username = document.getElementById('regUsername').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const role = document.querySelector('.role-option.selected').dataset.role;
+    const err = document.getElementById('regError');
+    const users = getUsers();
+    if (users.find(x => x.username === username)) { err.textContent = '❌ Логин занят'; return; }
+    if (password.length < 4) { err.textContent = '❌ Пароль слишком короткий'; return; }
+    const newUser = { username, password, email, name, role };
+    users.push(newUser);
+    saveUsers(users);
+    localStorage.setItem('sh_currentUser', JSON.stringify(newUser));
+    showApp(newUser);
+    showToast('🎉 Аккаунт создан!', 'success');
+    playSound('success');
+  });
+
+  function showApp(user) {
+    document.getElementById('authScreen').classList.remove('active');
+    document.getElementById('app').classList.add('active');
+    document.getElementById('userName').textContent = user.name;
+    document.getElementById('userAvatar').textContent = user.name[0].toUpperCase();
+    document.getElementById('profileName').textContent = user.name;
+    document.getElementById('profileAvatar').textContent = user.name[0].toUpperCase();
+    document.getElementById('profileNameInput').value = user.name;
+    document.getElementById('profileEmail').textContent = user.email;
+    const roleNames = { admin: 'Администратор', user: 'Пользователь', guest: 'Гость' };
+    document.getElementById('profileRole').textContent = roleNames[user.role];
+    renderFamily();
+  }
+
+  function logout() {
+    localStorage.removeItem('sh_currentUser');
+    document.getElementById('app').classList.remove('active');
+    document.getElementById('authScreen').classList.add('active');
+    document.getElementById('loginForm').reset();
+    showToast('👋 Вы вышли');
+    playSound('click');
+  }
+
+  // ===== НАВИГАЦИЯ =====
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => { playSound('click'); goToPage(item.dataset.page); });
+  });
+
+  function goToPage(page) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    const titles = { dashboard:'Дашборд', devices:'Устройства', music:'Музыка', map:'Карта дома', rooms:'Комнаты', scenes:'Сцены', automations:'Автоматизации', schedules:'Расписания', analytics:'Аналитика', security:'Безопасность', energy:'Энергоаудит', family:'Семья', achievements:'Достижения', history:'История', settings:'Настройки', profile:'Профиль' };
+    document.getElementById('pageTitle').textContent = titles[page] || page;
+    document.getElementById('sidebar').classList.remove('open');
+    if (page === 'history') renderHistory();
+    if (page === 'achievements') renderAchievements();
+    if (page === 'map') updateMapDots();
+    if (page === 'automations') renderAutomations();
+    if (page === 'schedules') renderSchedules();
+    if (page === 'analytics') renderAnalytics();
+    if (page === 'security') renderSecurityTimeline();
+    if (page === 'music') renderPlaylist();
+  }
+
+  // ===== УСТРОЙСТВА =====
+  const devices = {
+    light:    { name:'Свет в гостиной', icon:'💡', room:'Гостиная', on:false, brightness:70 },
+    thermo:   { name:'Термостат',       icon:'🌡️', room:'Гостиная', on:false, temp:22 },
+    curtains: { name:'Шторы',           icon:'🪟', room:'Гостиная', on:false, mode:'close' },
+    music:    { name:'Музыка',          icon:'🎵', room:'Спальня',  on:false },
+    camera:   { name:'Камеры',          icon:'📹', room:'Двор',     on:false },
+    alarm:    { name:'Сигнализация',    icon:'🚨', room:'Кухня',    on:false },
+    vacuum:   { name:'Робот-пылесос',   icon:'🤖', room:'Гостиная', on:false },
+    tv:       { name:'Телевизор',       icon:'📺', room:'Гостиная', on:false },
+    speaker:  { name:'Умная колонка',   icon:'🔊', room:'Спальня',  on:false },
+    ac:       { name:'Кондиционер',     icon:'❄️', room:'Кухня',    on:false, temp:24 }
+  };
+
+  function renderDevices(filter='all', container='devicesGrid') {
+    const grid = document.getElementById(container);
+    if (!grid) return;
+    grid.innerHTML = '';
+    Object.keys(devices).forEach(id => {
+      const d = devices[id];
+      if (filter === 'on' && !d.on) return;
+      if (filter === 'off' && d.on) return;
+      const card = document.createElement('div');
+      card.className = 'device-card' + (d.on ? ' on' : '');
+      card.id = 'card-' + id + '-' + container;
+      if (id === 'curtains') card.dataset.curtain = d.mode;
+      card.onclick = (e) => { if (!e.target.closest('.switch') && !e.target.closest('.mini-btn') && !e.target.closest('.slider-range') && !e.target.closest('.music-player') && !e.target.closest('.music-btn')) openDeviceModal(id); };
+
+      let extra = '';
+      if (id === 'light') extra = `<input type="range" min="0" max="100" value="${d.brightness}" class="slider-range" oninput="updateBrightness('${id}', this.value, event)"><div class="range-value"><span>Яркость</span><span>${d.brightness}%</span></div>`;
+      if (id === 'thermo') extra = `<input type="range" min="16" max="30" value="${d.temp}" class="slider-range" oninput="updateTemp('${id}', this.value, event)"><div class="range-value"><span>Температура</span><span>${d.temp}°C</span></div>`;
+      if (id === 'ac') extra = `<input type="range" min="16" max="30" value="${d.temp}" class="slider-range" oninput="updateAcTemp('${id}', this.value, event)"><div class="range-value"><span>Температура</span><span>${d.temp}°C</span></div>`;
+      if (id === 'curtains') extra = `<div class="curtain-visual"><div class="curtain-l"></div><div class="curtain-r"></div></div><div class="device-buttons"><button class="mini-btn ${d.mode==='open'?'active':''}" onclick="setCurtain('open', event)">Открыть</button><button class="mini-btn ${d.mode==='half'?'active':''}" onclick="setCurtain('half', event)">½</button><button class="mini-btn ${d.mode==='close'?'active':''}" onclick="setCurtain('close', event)">Закрыть</button></div>`;
+      if (id === 'music') {
+        const track = playlist[currentTrackIndex];
+        extra = `
+          <div class="music-player ${d.on && isPlaying ? 'playing' : ''}">
+            <div class="music-cover-wrap">
+              <div class="music-cover ${d.on && isPlaying ? 'playing' : ''}">${track.cover}</div>
+              <div class="music-info">
+                <div class="music-title">${track.title}</div>
+                <div class="music-artist">${track.artist}</div>
+                <div class="music-equalizer">
+                  <div class="eq-bar" style="height:8px"></div>
+                  <div class="eq-bar" style="height:12px"></div>
+                  <div class="eq-bar" style="height:16px"></div>
+                  <div class="eq-bar" style="height:10px"></div>
+                  <div class="eq-bar" style="height:14px"></div>
+                  <div class="eq-bar" style="height:8px"></div>
+                </div>
+              </div>
+            </div>
+            <div class="music-progress" onclick="seekMusic(event)"><div class="music-progress-fill"></div></div>
+            <div class="music-controls">
+              <button class="music-btn" onclick="event.stopPropagation(); prevTrack()">⏮</button>
+              <button class="music-btn play" onclick="event.stopPropagation(); togglePlayMusic()">${d.on && isPlaying ? '⏸' : '▶'}</button>
+              <button class="music-btn" onclick="event.stopPropagation(); nextTrack()">⏭</button>
+            </div>
+          </div>
+        `;
+      }
+      if (id === 'camera') extra = `<div class="device-buttons"><button class="mini-btn" onclick="showToast('📹 Камера 1: двор', 'success'); event.stopPropagation();">Камера 1</button><button class="mini-btn" onclick="showToast('📹 Камера 2: вход', 'success'); event.stopPropagation();">Камера 2</button></div>`;
+      if (id === 'vacuum') extra = `<div class="vacuum-track"><div class="vacuum-icon">🤖</div></div><div class="device-buttons"><button class="mini-btn" onclick="vacuumAction('start', event)">▶ Старт</button><button class="mini-btn" onclick="vacuumAction('pause', event)">⏸</button><button class="mini-btn" onclick="vacuumAction('home', event)">🏠 База</button></div>`;
+      if (id === 'tv') extra = `<div class="device-buttons"><button class="mini-btn" onclick="showToast('📺 HDMI 1', 'success'); event.stopPropagation();">HDMI 1</button><button class="mini-btn" onclick="showToast('📺 Netflix', 'success'); event.stopPropagation();">Netflix</button><button class="mini-btn" onclick="showToast('📺 YouTube', 'success'); event.stopPropagation();">YouTube</button></div>`;
+      if (id === 'speaker') extra = `<div class="device-buttons"><button class="mini-btn" onclick="event.stopPropagation(); playTrackByIndex(0);">🔥 Hot</button><button class="mini-btn" onclick="event.stopPropagation(); playTrackByIndex(1);">💫 Déjà Vu</button><button class="mini-btn" onclick="event.stopPropagation(); playTrackByIndex(2);">☀️ Sun Is Up</button></div>`;
+
+      card.innerHTML = `<div class="device-header"><div class="device-icon">${d.icon}</div><label class="switch" onclick="event.stopPropagation()"><input type="checkbox" ${d.on?'checked':''} onchange="toggleDevice('${id}', this.checked, '${container}')"><span class="slider-sw"></span></label></div><div class="device-name">${d.name}</div><div class="device-status"><span class="rec-dot"></span>${getStatus(id)}</div>${extra}`;
+      grid.appendChild(card);
+    });
+  }
+
+  function getStatus(id) {
+    const d = devices[id];
+    if (!d.on) return 'Выключено';
+    const map = {
+      light: `Яркость ${d.brightness}%`,
+      thermo: `Нагрев до ${d.temp}°C`,
+      ac: `Охлаждение до ${d.temp}°C`,
+      curtains: d.mode === 'open' ? 'Открыты' : d.mode === 'half' ? 'Наполовину' : 'Закрыты',
+      music: isPlaying ? `▶ ${playlist[currentTrackIndex].title}` : 'Готово',
+      camera: '<span class="rec-dot"></span>Запись',
+      alarm: 'Под охраной',
+      vacuum: 'Убирается',
+      tv: 'Включён',
+      speaker: isPlaying ? `▶ ${playlist[currentTrackIndex].title}` : 'Режим ожидания'
+    };
+    return map[id];
+  }
+
+  function toggleDevice(id, state, container) {
+    devices[id].on = state;
+    playSound('toggle');
+    if (id === 'music') {
+      if (state) {
+        togglePlay();
+      } else {
+        if (ytReady && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
+        isPlaying = false;
+        updatePlayButton();
+      }
+    }
+    renderDevices(currentFilter, 'devicesGrid');
+    renderDevices(currentFilter, 'devicesGridAll');
+    const action = state ? 'включено' : 'выключено';
+    showToast(`${devices[id].icon} ${devices[id].name} ${action}`, state ? 'success' : '');
+    addHistory(devices[id].icon, `${devices[id].name} ${action}`);
+    updateStats();
+    updateMapDots();
+    updateChart();
+    updateHomeScore();
+    checkAchievements();
+  }
+
+  function togglePlayMusic() {
+    if (!devices.music.on) {
+      devices.music.on = true;
+      renderDevices(currentFilter, 'devicesGrid');
+      renderDevices(currentFilter, 'devicesGridAll');
+    }
+    togglePlay();
+    renderDevices(currentFilter, 'devicesGrid');
+    renderDevices(currentFilter, 'devicesGridAll');
+  }
+
+  function seekMusic(e) {
+    if (!ytReady) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    const dur = ytPlayer.getDuration();
+    ytPlayer.seekTo(dur * pct, true);
+  }
+
+  let currentFilter = 'all';
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      currentFilter = t.dataset.filter;
+      renderDevices(currentFilter, 'devicesGridAll');
+      playSound('click');
+    });
+  });
+
+  function updateBrightness(id, v, e) {
+    if (e) e.stopPropagation();
+    devices[id].brightness = parseInt(v);
+    if (v > 0 && !devices[id].on) { devices[id].on = true; renderDevices(currentFilter, 'devicesGrid'); renderDevices(currentFilter, 'devicesGridAll'); }
+    renderDevices(currentFilter, 'devicesGrid');
+    renderDevices(currentFilter, 'devicesGridAll');
+    updateStats(); updateChart(); updateHomeScore();
+  }
+
+  function updateTemp(id, v, e) {
+    if (e) e.stopPropagation();
+    devices[id].temp = parseInt(v);
+    document.getElementById('homeTemp').textContent = v + '°C';
+    if (!devices[id].on) { devices[id].on = true; renderDevices(currentFilter, 'devicesGrid'); renderDevices(currentFilter, 'devicesGridAll'); }
+    addHistory('🌡️', `Температура: ${v}°C`);
+    updateStats(); updateChart(); updateHomeScore();
+  }
+
+  function updateAcTemp(id, v, e) {
+    if (e) e.stopPropagation();
+    devices[id].temp = parseInt(v);
+    if (!devices[id].on) { devices[id].on = true; renderDevices(currentFilter, 'devicesGrid'); renderDevices(currentFilter, 'devicesGridAll'); }
+    addHistory('❄️', `Кондиционер: ${v}°C`);
+    renderDevices(currentFilter, 'devicesGrid');
+    renderDevices(currentFilter, 'devicesGridAll');
+    updateStats();
+  }
+
+  function setCurtain(mode, e) {
+    if (e) e.stopPropagation();
+    devices.curtains.mode = mode;
+    devices.curtains.on = mode !== 'close';
+    playSound('click');
+    renderDevices(currentFilter, 'devicesGrid');
+    renderDevices(currentFilter, 'devicesGridAll');
+    const map = { open: 'открыты', half: 'наполовину', close: 'закрыты' };
+    showToast(`🪟 Шторы ${map[mode]}`, 'success');
+    addHistory('🪟', `Шторы ${map[mode]}`);
+    updateStats(); updateMapDots(); updateHomeScore();
+  }
+
+  function vacuumAction(action, e) {
+    if (e) e.stopPropagation();
+    const map = { start: 'Уборка начата', pause: 'Пауза', home: 'Возврат на базу' };
+    if (action === 'start') devices.vacuum.on = true;
+    if (action === 'home') devices.vacuum.on = false;
+    playSound('click');
+    renderDevices(currentFilter, 'devicesGrid');
+    renderDevices(currentFilter, 'devicesGridAll');
+    showToast(`🤖 ${map[action]}`, 'success');
+    addHistory('🤖', map[action]);
+    updateStats(); updateMapDots();
+  }
+
+  function applyScene(scene) {
+    const scenes = {
+      morning: { msg: '🌅 Сцена "Доброе утро"', actions: () => { setCurtain('open'); devices.light.on=true; devices.light.brightness=80; } },
+      movie:   { msg: '🎬 Сцена "Кино"', actions: () => { setCurtain('close'); devices.light.on=true; devices.light.brightness=20; devices.tv.on=true; } },
+      night:   { msg: '🌙 Сцена "Спокойной ночи"', actions: () => { Object.keys(devices).forEach(k => { if (k !== 'alarm' && k !== 'camera') devices[k].on=false; }); setCurtain('close'); devices.alarm.on=true; if (ytReady) ytPlayer.pauseVideo(); isPlaying = false; } },
+      away:    { msg: '🏃 Сцена "Я ушёл"', actions: () => { Object.keys(devices).forEach(k => devices[k].on=false); devices.alarm.on=true; devices.camera.on=true; if (ytReady) ytPlayer.pauseVideo(); isPlaying = false; } },
+      party:   { msg: '🎉 Сцена "Вечеринка" — Inna - Hot!', actions: () => { devices.light.on=true; devices.light.brightness=100; devices.music.on=true; devices.speaker.on=true; devices.curtains.on=true; devices.curtains.mode='half'; playTrackByIndex(0); } },
+      work:    { msg: '💼 Сцена "Работа"', actions: () => { devices.light.on=true; devices.light.brightness=100; devices.ac.on=true; } }
+    };
+    scenes[scene].actions();
+    playSound('success');
+    renderDevices(currentFilter, 'devicesGrid');
+    renderDevices(currentFilter, 'devicesGridAll');
+    showToast(scenes[scene].msg, 'success');
+    addHistory('🎬', scenes[scene].msg);
+    updateStats(); updateMapDots(); updateChart(); updateHomeScore(); updatePlayButton();
+    checkAchievements();
+  }
+
+  function filterByRoom(room) {
+    goToPage('devices');
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelector('.tab[data-filter="all"]').classList.add('active');
+    currentFilter = 'all';
+    renderDevices('all', 'devicesGridAll');
+    document.querySelectorAll('#devicesGridAll .device-card').forEach(card => {
+      const id = card.id.replace('card-', '').replace('-devicesGridAll', '');
+      if (devices[id].room !== room) card.style.display = 'none';
+    });
+    document.getElementById('pageTitle').textContent = `Комната: ${room}`;
+    showToast(`🏡 ${room}`, 'success');
+  }
+
+  // ===== КАРТА =====
+  document.querySelectorAll('.room-shape').forEach(room => {
+    room.addEventListener('click', () => { filterByRoom(room.dataset.room); playSound('click'); });
+  });
+  document.querySelectorAll('.device-dot').forEach(dot => {
+    dot.addEventListener('click', (e) => { e.stopPropagation(); const id = dot.dataset.device; toggleDevice(id, !devices[id].on, 'devicesGrid'); });
+  });
+  function updateMapDots() {
+    document.querySelectorAll('.device-dot').forEach(dot => {
+      const id = dot.dataset.device;
+      dot.classList.toggle('on', devices[id].on);
+      dot.classList.toggle('off', !devices[id].on);
+    });
+  }
+
+  // ===== СКОР ДОМА =====
+  function updateHomeScore() {
+    const active = Object.values(devices).filter(d => d.on).length;
+    const comfort = devices.thermo.on ? (devices.thermo.temp >= 20 && devices.thermo.temp <= 24 ? 95 : 70) : 60;
+    const safety = devices.alarm.on ? 98 : 75;
+    const efficiency = active <= 3 ? 90 : active <= 5 ? 75 : 60;
+    const mood = isPlaying ? 95 : 65;
+    const total = Math.round((comfort + safety + efficiency + mood) / 4);
+    document.getElementById('scoreNumber').textContent = total;
+    document.getElementById('scoreFill').style.strokeDashoffset = 326.7 * (1 - total / 100);
+    document.getElementById('comfortScore').textContent = comfort + '%';
+    document.getElementById('safetyScore').textContent = safety + '%';
+    document.getElementById('efficiencyScore').textContent = efficiency + '%';
+    document.getElementById('moodScore').textContent = mood + '%';
+  }
+
+  // ===== ГРАФИКИ =====
+  let energyData = [1.2, 1.5, 1.3, 1.8, 2.1, 1.9, 2.3, 2.0, 1.7, 2.5, 2.8, 2.4];
+  function updateChart() {
+    const active = Object.values(devices).filter(d => d.on).length;
+    const newVal = 0.5 + active * 0.3 + Math.random() * 0.5;
+    energyData.push(newVal);
+    if (energyData.length > 12) energyData.shift();
+    drawChart(energyData, 'chartLine', 'chartArea', 'chartDots', 'chartGrid', 'chartLabels');
+  }
+  function drawChart(data, lineId, areaId, dotsId, gridId, labelsId) {
+    const w = 800, h = 180, padding = 30;
+    const max = Math.max(...data) * 1.2;
+    const step = (w - padding * 2) / (data.length - 1);
+    let path = '', area = `M ${padding} ${h - padding} `;
+    data.forEach((v, i) => {
+      const x = padding + i * step;
+      const y = h - padding - (v / max) * (h - padding * 2);
+      path += (i === 0 ? 'M' : 'L') + ` ${x} ${y} `;
+      area += `L ${x} ${y} `;
+    });
+    area += `L ${w - padding} ${h - padding} Z`;
+    document.getElementById(lineId).setAttribute('d', path);
+    document.getElementById(areaId).setAttribute('d', area);
+    let dots = '';
+    data.forEach((v, i) => {
+      const x = padding + i * step;
+      const y = h - padding - (v / max) * (h - padding * 2);
+      dots += `<circle class="chart-dot" cx="${x}" cy="${y}" r="4"><title>${v.toFixed(1)} кВт</title></circle>`;
+    });
+    document.getElementById(dotsId).innerHTML = dots;
+    if (gridId) {
+      let grid = '', labels = '';
+      for (let i = 0; i <= 4; i++) {
+        const y = padding + i * (h - padding * 2) / 4;
+        grid += `<line class="chart-grid-line" x1="${padding}" y1="${y}" x2="${w-padding}" y2="${y}"/>`;
+        labels += `<text class="chart-label" x="${padding-5}" y="${y+3}" text-anchor="end">${(max * (4-i)/4).toFixed(1)}</text>`;
+      }
+      document.getElementById(gridId).innerHTML = grid;
+      document.getElementById(labelsId).innerHTML = labels;
+    }
+  }
+  function setChartRange(range, el) {
+    document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    let data;
+    if (range === 'day') data = energyData;
+    else if (range === 'week') data = [12, 15, 13, 18, 21, 19, 23];
+    else data = [320, 340, 310, 380, 410, 390, 430, 400, 370, 450, 480, 440];
+    drawChart(data, 'chartLine', 'chartArea', 'chartDots', 'chartGrid', 'chartLabels');
+  }
+
+  // ===== ЧАСЫ =====
+  function updateClock() {
+    const now = new Date();
+    const h = now.getHours() % 12, m = now.getMinutes(), s = now.getSeconds();
+    document.getElementById('hourHand').style.transform = `rotate(${h * 30 + m * 0.5}deg)`;
+    document.getElementById('minuteHand').style.transform = `rotate(${m * 6}deg)`;
+    document.getElementById('secondHand').style.transform = `rotate(${s * 6}deg)`;
+    document.getElementById('digitalTime').textContent = now.toLocaleTimeString('ru-RU');
+    document.getElementById('digitalDate').textContent = now.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // ===== ПОГОДА =====
+  const weatherStates = [
+    { temp: '+18°', desc: 'Ясно · Москва', icon: '☀️' },
+    { temp: '+15°', desc: 'Облачно', icon: '⛅' },
+    { temp: '+12°', desc: 'Дождь', icon: '🌧️' },
+    { temp: '+20°', desc: 'Солнечно', icon: '🌤️' }
+  ];
+  let weatherIdx = 0;
+  function updateWeather() {
+    const w = weatherStates[weatherIdx];
+    document.getElementById('weatherTemp').textContent = w.temp;
+    document.getElementById('weatherDesc').textContent = w.desc;
+    document.getElementById('weatherIcon').textContent = w.icon;
+  }
+  setInterval(() => { weatherIdx = (weatherIdx + 1) % weatherStates.length; updateWeather(); }, 15000);
+  updateWeather();
+
+  // ===== АВТОМАТИЗАЦИИ =====
+  const automations = [
+    { id: 1, name: 'Включить свет вечером', icon: '💡', trigger: 'В 19:00', action: 'Свет в гостиной', enabled: true, runs: 42 },
+    { id: 2, name: 'Охрана при уходе', icon: '🚨', trigger: 'Все ушли', action: 'Включить сигнализацию', enabled: true, runs: 18 },
+    { id: 3, name: 'Вечеринка с Inna', icon: '🎵', trigger: 'Пятница 20:00', action: 'Играть Hot - Inna', enabled: true, runs: 7 }
+  ];
+  function renderAutomations() {
+    document.getElementById('automationsList').innerHTML = automations.map(a => `
+      <div class="automation-card">
+        <div class="automation-icon">${a.icon}</div>
+        <div class="automation-info">
+          <div class="name">${a.name}</div>
+          <div class="desc">Если ${a.trigger} → ${a.action}</div>
+          <div class="stats">Запусков: ${a.runs}</div>
+        </div>
+        <label class="switch"><input type="checkbox" ${a.enabled?'checked':''} onchange="toggleAutomation(${a.id}, this.checked)"><span class="slider-sw"></span></label>
+      </div>
+    `).join('');
+  }
+  function toggleAutomation(id, state) {
+    const a = automations.find(x => x.id === id);
+    a.enabled = state;
+    showToast(`${a.icon} ${a.name}: ${state ? 'включено' : 'выключено'}`, state ? 'success' : '');
+    playSound('toggle');
+  }
+
+  // ===== РАСПИСАНИЯ =====
+  const schedules = [
+    { id: 1, time: '07:30', name: 'Подъём', device: '💡 Свет', days: [1,2,3,4,5], enabled: true },
+    { id: 2, time: '23:00', name: 'Сон', device: '🌙 Сцена ночь', days: [0,1,2,3,4,5,6], enabled: true },
+    { id: 3, time: '20:00', name: 'Вечеринка', device: '🎵 Inna - Hot', days: [5,6], enabled: true }
+  ];
+  function renderSchedules() {
+    const dayNames = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+    document.getElementById('schedulesList').innerHTML = schedules.map(s => `
+      <div class="schedule-card">
+        <div class="schedule-time">${s.time}</div>
+        <div class="schedule-info">
+          <div class="name">${s.name}</div>
+          <div style="font-size:12px; color:var(--muted);">${s.device}</div>
+          <div class="days">${dayNames.map((d, i) => `<span class="day-chip ${s.days.includes(i)?'active':''}">${d}</span>`).join('')}</div>
+        </div>
+        <label class="switch"><input type="checkbox" ${s.enabled?'checked':''}><span class="slider-sw"></span></label>
+      </div>
+    `).join('');
+  }
+
+  // ===== АНАЛИТИКА =====
+  function renderAnalytics() {
+    const roomData = [
+      { name: 'Гостиная', value: 45 },
+      { name: 'Кухня', value: 32 },
+      { name: 'Спальня', value: 28 },
+      { name: 'Ванная', value: 18 },
+      { name: 'Двор', value: 12 }
+    ];
+    document.getElementById('roomBars').innerHTML = roomData.map(r => `
+      <div class="bar-row">
+        <div class="bar-label">${r.name}</div>
+        <div class="bar-track"><div class="bar-fill" style="width: ${r.value}%">${r.value} кВт</div></div>
+        <div class="bar-value">${r.value} кВт</div>
+      </div>
+    `).join('');
+  }
+
+  // ===== БЕЗОПАСНОСТЬ =====
+  let securityEvents = [
+    { type: 'success', text: 'Система запущена', time: new Date().toLocaleString('ru-RU') }
+  ];
+  function renderSecurityTimeline() {
+    document.getElementById('securityTimeline').innerHTML = securityEvents.slice(0, 20).map(e => `
+      <div class="event-item ${e.type}">
+        <div class="event-time">${e.time}</div>
+        <div class="event-text">${e.text}</div>
+      </div>
+    `).join('');
+  }
+
+  // ===== СЕМЬЯ =====
+  function renderFamily() {
+    const users = getUsers();
+    const current = JSON.parse(localStorage.getItem('sh_currentUser') || '{}');
+    document.getElementById('familyGrid').innerHTML = users.map(u => `
+      <div class="family-card">
+        <div class="family-avatar">${u.name[0].toUpperCase()}</div>
+        <div class="family-name">${u.name}${u.username === current.username ? ' (вы)' : ''}</div>
+        <div class="family-role ${u.role}">${u.role === 'admin' ? 'Администратор' : u.role === 'user' ? 'Пользователь' : 'Гость'}</div>
+        <div class="family-status ${u.username === current.username ? '' : 'offline'}">${u.username === current.username ? '● Онлайн' : '○ Оффлайн'}</div>
+      </div>
+    `).join('');
+  }
+
+  // ===== ГОЛОСОВОЕ УПРАВЛЕНИЕ =====
+  let recognition;
+  let isListening = false;
+  const voiceBtn = document.getElementById('voiceBtn');
+  function toggleVoice() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      showToast('❌ Голосовое управление не поддерживается', 'error');
+      return;
+    }
+    if (isListening) { recognition.stop(); return; }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.lang = 'ru-RU';
+    recognition.onstart = () => { isListening = true; voiceBtn.classList.add('listening'); showToast('🎤 Слушаю...', 'success'); };
+    recognition.onresult = (e) => processVoiceCommand(e.results[0][0].transcript.toLowerCase());
+    recognition.onerror = () => showToast('❌ Ошибка распознавания', 'error');
+    recognition.onend = () => { isListening = false; voiceBtn.classList.remove('listening'); };
+    recognition.start();
+  }
+  function processVoiceCommand(text) {
+    showToast(`🎤 "${text}"`, 'success');
+    addHistory('🎤', `"${text}"`);
+    if (text.includes('hot') || text.includes('инна') || (text.includes('включи') && text.includes('музык'))) { playTrackByIndex(0); devices.music.on = true; renderDevices(currentFilter, 'devicesGrid'); }
+    else if (text.includes('свет')) toggleDevice('light', true, 'devicesGrid');
+    else if (text.includes('ночь')) applyScene('night');
+    else if (text.includes('вечеринк')) applyScene('party');
+    else showToast('🤔 Команда не распознана', 'warning');
+  }
+
+  // ===== AI-АССИСТЕНТ =====
+  function toggleAI() { document.getElementById('aiChat').classList.toggle('open'); playSound('click'); }
+  function sendAIMessage(text) {
+    const input = document.getElementById('aiInput');
+    const msg = text || input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    const messages = document.getElementById('aiMessages');
+    messages.insertAdjacentHTML('beforeend', `<div class="ai-message user">${msg}</div>`);
+    messages.insertAdjacentHTML('beforeend', `<div class="ai-message bot typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`);
+    messages.scrollTop = messages.scrollHeight;
+    setTimeout(() => {
+      const typing = messages.querySelector('.typing');
+      if (typing) typing.remove();
+      messages.insertAdjacentHTML('beforeend', `<div class="ai-message bot">${getAIResponse(msg)}</div>`);
+      messages.scrollTop = messages.scrollHeight;
+    }, 1000);
+  }
+  function getAIResponse(msg) {
+    const m = msg.toLowerCase();
+    if (m.includes('hot') || m.includes('инна') || m.includes('включи') && m.includes('музык')) { playTrackByIndex(0); devices.music.on = true; renderDevices(currentFilter, 'devicesGrid'); return '🎵 Включаю Inna - Hot! Наслаждайся хитом 2009 года!'; }
+    if (m.includes('температур')) return `🌡️ Температура дома: ${devices.thermo.temp}°C`;
+    if (m.includes('энерг')) return `⚡ Потребление: ${document.getElementById('powerUsage').textContent}`;
+    if (m.includes('статус')) return `📊 Активных устройств: ${Object.values(devices).filter(d=>d.on).length} из ${Object.keys(devices).length}`;
+    if (m.includes('привет')) return '👋 Привет! Чем могу помочь?';
+    return '🤔 Я пока учусь. Попробуйте: "Включи Hot Inna", "Какая температура?", "Сцена вечеринка"';
+  }
+
+  // ===== КОМАНДНАЯ ПАЛИТРА =====
+  const commands = [
+    { icon: '🔥', text: 'Включить Hot - Inna', action: () => { playTrackByIndex(0); devices.music.on = true; renderDevices(currentFilter, 'devicesGrid'); } },
+    { icon: '💡', text: 'Включить свет', action: () => toggleDevice('light', true, 'devicesGrid') },
+    { icon: '🎉', text: 'Сцена: Вечеринка', action: () => applyScene('party') },
+    { icon: '🌙', text: 'Сцена: Ночь', action: () => applyScene('night') },
+    { icon: '📊', text: 'Дашборд', action: () => goToPage('dashboard') },
+    { icon: '🎵', text: 'Музыка', action: () => goToPage('music') },
+    { icon: '🎨', text: 'Сменить тему', action: () => toggleTheme() }
+  ];
+  function openCommandPalette() {
+    document.getElementById('commandPalette').classList.add('show');
+    document.getElementById('commandInput').value = '';
+    document.getElementById('commandInput').focus();
+    renderCommands('');
+  }
+  function closeCommandPalette() { document.getElementById('commandPalette').classList.remove('show'); }
+  function renderCommands(query) {
+    const list = document.getElementById('commandList');
+    const filtered = commands.filter(c => c.text.toLowerCase().includes(query.toLowerCase()));
+    list.innerHTML = filtered.map((c, i) => `<div class="command-item ${i===0?'selected':''}" onclick="executeCommand(${commands.indexOf(c)})"><span class="icon">${c.icon}</span><span class="text">${c.text}</span></div>`).join('');
+  }
+  function executeCommand(idx) { commands[idx].action(); closeCommandPalette(); }
+  document.getElementById('commandInput').addEventListener('input', (e) => renderCommands(e.target.value));
+  document.getElementById('commandInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeCommandPalette();
+    if (e.key === 'Enter') { const s = document.querySelector('.command-item.selected'); if (s) s.click(); }
+  });
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openCommandPalette(); }
+    if (e.key === 'Escape') closeCommandPalette();
+  });
+  document.addEventListener('click', (e) => { if (!e.target.closest('.command-palette') && !e.target.closest('.search-box')) closeCommandPalette(); });
+
+  // ===== ДОСТИЖЕНИЯ =====
+  const achievements = [
+    { id: 'first_on', icon: '💡', name: 'Первый свет', desc: 'Включи устройство', unlocked: false },
+    { id: 'all_on', icon: '⚡', name: 'Полная мощность', desc: 'Все устройства', unlocked: false },
+    { id: 'music', icon: '🎵', name: 'Меломан', desc: 'Включи музыку', unlocked: false },
+    { id: 'hot', icon: '🔥', name: 'HOT!', desc: 'Включи Inna - Hot', unlocked: false },
+    { id: 'party', icon: '🎉', name: 'Душа компании', desc: 'Сцена "Вечеринка"', unlocked: false },
+    { id: 'voice', icon: '🎤', name: 'Голос дома', desc: 'Голосовая команда', unlocked: false },
+    { id: 'theme', icon: '🎨', name: 'Эстет', desc: 'Смени тему', unlocked: false },
+    { id: 'ai', icon: '🤖', name: 'Друг AI', desc: 'Поговори с AI', unlocked: false },
+    { id: 'map', icon: '🗺️', name: 'Исследователь', desc: 'Открой карту', unlocked: false },
+    { id: 'security', icon: '🛡️', name: 'Охранник', desc: 'Включи охрану', unlocked: false },
+    { id: 'family', icon: '👨‍👩‍👧', name: 'Семьянин', desc: 'Открой Семья', unlocked: false },
+    { id: 'playlist', icon: '💿', name: 'DJ', desc: 'Переключи 3 трека', unlocked: false }
+  ];
+  let trackSwitches = 0;
+  function renderAchievements() {
+    document.getElementById('achievementsList').innerHTML = achievements.map(a => `<div class="achievement ${a.unlocked ? 'unlocked' : 'locked'}"><div class="achievement-icon">${a.icon}</div><div class="achievement-name">${a.name}</div><div class="achievement-desc">${a.desc}</div></div>`).join('');
+    document.getElementById('achieveCount').textContent = `${achievements.filter(a => a.unlocked).length}/${achievements.length}`;
+  }
+  function unlockAchievement(id) {
+    const a = achievements.find(x => x.id === id);
+    if (!a || a.unlocked) return;
+    a.unlocked = true;
+    showToast(`🏆 ${a.name}!`, 'success');
+    addHistory('🏆', a.name);
+    playSound('success');
+    renderAchievements();
+  }
+  function checkAchievements() {
+    const active = Object.values(devices).filter(d => d.on).length;
+    if (active > 0) unlockAchievement('first_on');
+    if (active === Object.keys(devices).length) unlockAchievement('all_on');
+    if (devices.alarm.on) unlockAchievement('security');
+  }
+
+  // ===== ИСТОРИЯ =====
+  let history = JSON.parse(localStorage.getItem('sh_history') || '[]');
+  function addHistory(icon, text) {
+    history.unshift({ icon, text, time: new Date().toLocaleString('ru-RU') });
+    if (history.length > 50) history.pop();
+    localStorage.setItem('sh_history', JSON.stringify(history));
+  }
+  function renderHistory() {
+    const list = document.getElementById('historyList');
+    if (history.length === 0) { list.innerHTML = '<p style="color:var(--muted); text-align:center; padding:40px;">История пуста</p>'; return; }
+    list.innerHTML = history.map(h => `<div class="history-item"><div class="history-icon">${h.icon}</div><div class="history-text">${h.text}</div><div class="history-time">${h.time}</div></div>`).join('');
+  }
+  function clearHistory() { history = []; localStorage.removeItem('sh_history'); renderHistory(); showToast('🗑️ OK', 'success'); }
+
+  // ===== СТАТИСТИКА =====
+  function updateStats() {
+    const active = Object.values(devices).filter(d => d.on).length;
+    document.getElementById('activeCount').textContent = active;
+    document.getElementById('powerUsage').textContent = (0.3 + active * 0.4).toFixed(1) + ' кВт';
+  }
+
+  // ===== УВЕДОМЛЕНИЯ =====
+  const notifications = [
+    { icon: '🔔', text: 'Добро пожаловать в SmartHome ULTIMATE!', time: 'Только что' },
+    { icon: '🎵', text: 'Добавлен плейлист Inna', time: '5 мин назад' },
+    { icon: '🔥', text: 'Hot Inna доступна для воспроизведения', time: '10 мин назад' }
+  ];
+  function renderNotifs() {
+    document.getElementById('notifList').innerHTML = notifications.map(n => `<div class="notif-item"><div>${n.icon} ${n.text}</div><div class="time">${n.time}</div></div>`).join('');
+  }
+  function toggleNotifPanel() { document.getElementById('notifPanel').classList.toggle('open'); document.getElementById('notifBadge').style.display = 'none'; playSound('click'); }
+
+  // ===== TOAST =====
+  function showToast(msg, type='') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 400); }, 3000);
+  }
+
+  // ===== ТЕМА =====
+  function toggleTheme() {
+    document.body.classList.toggle('light');
+    const isLight = document.body.classList.contains('light');
+    document.getElementById('themeToggle').checked = !isLight;
+    showToast(isLight ? '☀️ Светлая тема' : '🌙 Тёмная тема');
+    playSound('click');
+    unlockAchievement('theme');
+  }
+
+  // ===== МОДАЛЬНОЕ ОКНО =====
+  function openDeviceModal(id) {
+    const d = devices[id];
+    document.getElementById('modalTitle').textContent = d.icon + ' ' + d.name;
+    document.getElementById('modalBody').innerHTML = `
+      <div class="modal-row"><span class="label">Комната</span><span class="value">${d.room}</span></div>
+      <div class="modal-row"><span class="label">Состояние</span><span class="value">${d.on ? '✅ Включено' : '⭕ Выключено'}</span></div>
+      <div class="modal-row"><span class="label">Модель</span><span class="value">SH-${id.toUpperCase()}-2026</span></div>
+      <div class="modal-row"><span class="label">Связь</span><span class="value" style="color:var(--success)">● WiFi стабильно</span></div>
+    `;
+    document.getElementById('modalOverlay').classList.add('show');
+  }
+  function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+
+  // ===== ПРОФИЛЬ =====
+  function saveProfile() {
+    const name = document.getElementById('profileNameInput').value.trim();
+    if (!name) return;
+    const current = JSON.parse(localStorage.getItem('sh_currentUser') || '{}');
+    const users = getUsers();
+    const user = users.find(u => u.username === current.username);
+    if (user) { user.name = name; saveUsers(users); }
+    current.name = name;
+    localStorage.setItem('sh_currentUser', JSON.stringify(current));
+    document.getElementById('userName').textContent = name;
+    document.getElementById('profileName').textContent = name;
+    document.getElementById('userAvatar').textContent = name[0].toUpperCase();
+    document.getElementById('profileAvatar').textContent = name[0].toUpperCase();
+    showToast('✅ OK', 'success');
+    playSound('success');
+    renderFamily();
+  }
+
+  // ===== INIT =====
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('hide');
+    const current = localStorage.getItem('sh_currentUser');
+    if (current) {
+      showApp(JSON.parse(current));
+    } else {
+      document.getElementById('authScreen').classList.add('active');
+    }
+  }, 1800);
+
+  renderDevices('all', 'devicesGrid');
+  renderDevices('all', 'devicesGridAll');
+  renderNotifs();
+  renderAchievements();
+  renderAutomations();
+  renderSchedules();
+  updateStats();
+  updateChart();
+  updateMapDots();
+  updateHomeScore();
+  setInterval(updateChart, 5000);
+
+  // Отслеживание переключения треков для достижения
+  const origNext = nextTrack;
+  const origPrev = prevTrack;
+  window.nextTrack = function() { trackSwitches++; if (trackSwitches >= 3) unlockAchievement('playlist'); origNext(); };
+  window.prevTrack = function() { trackSwitches++; if (trackSwitches >= 3) unlockAchievement('playlist'); origPrev(); };
+  const origPlay = playTrackByIndex;
+  window.playTrackByIndex = function(i) {
+    if (i === 0) unlockAchievement('hot');
+    origPlay(i);
+  };
+</script>
+
+</body>
+</html>
